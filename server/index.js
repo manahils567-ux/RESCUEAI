@@ -6,6 +6,9 @@ const connectDB = require('./config/db');
 
 connectDB();
 
+// Start all data scrapers and cron jobs
+require('./jobs/cron');
+
 const app = express();
 
 app.use(helmet());
