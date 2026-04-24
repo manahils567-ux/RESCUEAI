@@ -1,12 +1,12 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 
-const NDMA_URL = 'https://ndma.gov.pk/flood-advisories/';
+const NDMA_URL = 'https://www.ndma.gov.pk/';
 
 const ALERT_KEYWORDS = {
   3: ['emergency', 'red alert', 'extreme', 'catastrophic', 'critical'],
   2: ['high alert', 'severe', 'warning', 'danger'],
-  1: ['advisory', 'watch', 'moderate', 'caution', 'alert']
+  1: ['advisory', 'watch', 'moderate', 'caution', 'alert', 'flood']
 };
 
 const PUNJAB_DISTRICTS = [
@@ -36,18 +36,23 @@ async function scrapeNDMAAlerts() {
     const $ = cheerio.load(data);
     const alerts = [];
 
-    $('p, li, td, h3, h4').each((i, el) => {
+    $('a, p, li, td, h3, h4, h5, span').each((i, el) => {
       const text = $(el).text().trim();
-      if (text.length < 20 || text.length > 1000) return;
+      if (text.length < 10 || text.length > 1000) return;
       const level = detectAlertLevel(text);
       if (level === 0) return;
       const districts = extractDistricts(text);
-      districts.forEach(district => {
-        alerts.push({ district, alert_level: level, raw_text: text.slice(0, 300), scraped_at: new Date() });
-      });
+      if (districts.length > 0) {
+        districts.forEach(district => {
+          alerts.push({ district, alert_level: level, raw_text: text.slice(0, 300), scraped_at: new Date() });
+        });
+      } else {
+        // Keep general national alerts even without a specific district
+        alerts.push({ district: 'National', alert_level: level, raw_text: text.slice(0, 300), scraped_at: new Date() });
+      }
     });
 
-    console.log(`NDMA: ${alerts.length} district alerts parsed`);
+    console.log(`NDMA: ${alerts.length} alerts parsed`);
     return alerts;
   } catch (err) {
     console.error('NDMA scrape error:', err.message);

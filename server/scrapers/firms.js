@@ -5,7 +5,9 @@ const PAKISTAN_BBOX = '60,23,77,37';
 
 async function fetchFIRMSData() {
   try {
-    const url = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/VIIRS_SNPP_NRT/${PAKISTAN_BBOX}/1/2024-01-01`;
+    const today = new Date().toISOString().split('T')[0];
+    const url = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${process.env.FIRMS_API_KEY}/VIIRS_SNPP_NRT/${PAKISTAN_BBOX}/1/${today}`;
+
     const response = await axios.get(url, { timeout: 30000 });
     const lines = response.data.split('\n').filter(l => l.trim());
     if (lines.length < 2) {
