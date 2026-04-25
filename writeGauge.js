@@ -1,3 +1,6 @@
+const fs = require('fs');
+
+const code = `
 const mongoose = require('mongoose');
 const RiverGaugeSchema = new mongoose.Schema({
   station:             { type: String, required: true },
@@ -10,3 +13,7 @@ const RiverGaugeSchema = new mongoose.Schema({
   read_at:             { type: Date, default: Date.now }
 }, { timestamps: true });
 module.exports = mongoose.model('RiverGauge', RiverGaugeSchema);
+`;
+
+fs.writeFileSync('./models/RiverGauge.js', code);
+console.log('Done — RiverGauge.js written');
