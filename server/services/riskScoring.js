@@ -38,6 +38,11 @@ async function calculateAllRiskScores() {
   }
   await RiskScore.insertMany(scores);
   console.log("Risk scores saved:", scores.length);
+  const redUCs = scores.filter(s => s.tier === 'red');
+  if (redUCs.length > 0) {
+    const { triggerSMSAlerts } = require('./sms');
+    await triggerSMSAlerts(redUCs);
+  }
   scores.forEach(s => console.log(" ", s.district, "/", s.union_council + ":", s.score, "(" + s.tier + ")"));
   return scores;
 }
