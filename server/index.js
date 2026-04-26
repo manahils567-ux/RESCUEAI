@@ -23,6 +23,8 @@ app.use('/webhook', require('./routes/webhook'));
 // Person 3 — Ground reports
 app.use('/api/reports', require('./routes/reports'));
 
+app.use('/api/register', require('./routes/register'));
+
 // Person 2 routes — will be uncommented when Person 2 pushes
 app.use('/api/risk', require('./routes/risk'));
 app.use('/api/roads', require('./routes/roads'));
