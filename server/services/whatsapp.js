@@ -56,6 +56,12 @@ async function handleIncomingMessage(message, contact) {
         'سیلاب کی تازہ معلومات کے لیے BACHAO+ ڈیش بورڈ دیکھیں۔ مدد: 1122'
       );
     }
+    else if (intent === 'REGISTER') {
+      await sendText(from,
+      'رجسٹریشن کے لیے اپنا ضلع لکھیں۔ مثال: Rajanpur\n' +
+      'To register, reply with your district name. Example: Rajanpur'
+    );
+    }
     else {
       await sendText(from, ur.HELP_MESSAGE);
     }

@@ -37,6 +37,11 @@ const INTENTS = {
     // Urdu
     'selaab', 'khatra', 'mehfooz', 'nikal', 'bachao',
   ],
+
+  REGISTER: [
+  'register', 'sign up', 'subscribe', 'alert me',
+  'mujhe alert', 'register karo', 'SMS chahiye'
+  ],
 };
 
 function detectIntent(text) {
