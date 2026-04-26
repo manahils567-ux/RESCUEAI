@@ -5,3 +5,6 @@ data/
 *.tif
 *.shp
 *.dbf
+.env
+*.env
+server/.env
