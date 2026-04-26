@@ -52,7 +52,11 @@ async function scrapeNDMAAlerts() {
       }
     });
 
-    console.log(`NDMA: ${alerts.length} alerts parsed`);
+    if (alerts.length > 0) {
+      const NDMAAlert = require('../models/NDMAAlert');
+      await NDMAAlert.insertMany(alerts, { ordered: false });
+    }
+    console.log(`NDMA: ${alerts.length} alerts parsed and saved`);
     return alerts;
   } catch (err) {
     console.error('NDMA scrape error:', err.message);
