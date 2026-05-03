@@ -92,20 +92,33 @@ export default function AgentPage() {
   };
 
   const getTierColor = (tier) => {
-    if (tier === 'critical') return '#ef4444';
-    if (tier === 'high') return '#f97316';
+    if (tier === 'critical') return 'var(--danger)';
+    if (tier === 'high') return 'var(--warning)';
     if (tier === 'elevated') return '#eab308';
-    return '#22c55e';
+    return 'var(--safe)';
+  };
+
+  const getTierBgColor = (tier) => {
+    if (tier === 'critical') return 'var(--danger-light)';
+    if (tier === 'high') return 'var(--warning-light)';
+    if (tier === 'elevated') return '#fef3c7';
+    return 'var(--safe-light)';
   };
 
   const getStatusColor = (status) => {
-    if (status === 'red') return '#ef4444';
-    if (status === 'amber') return '#f59e0b';
-    return '#22c55e';
+    if (status === 'red') return 'var(--danger)';
+    if (status === 'amber') return 'var(--warning)';
+    return 'var(--safe)';
+  };
+
+  const getStatusBgColor = (status) => {
+    if (status === 'red') return 'var(--danger-light)';
+    if (status === 'amber') return 'var(--warning-light)';
+    return 'var(--safe-light)';
   };
 
   if (!mounted || loading) {
-    return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f0f1a', color: '#fff' }}>Loading RescueAI Agent Dashboard...</div>;
+    return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>Loading RescueAI Agent Dashboard...</div>;
   }
 
   const pendingCount = reports.length;
@@ -113,72 +126,75 @@ export default function AgentPage() {
   const redRoadsCount = roadStatus.filter(r => r.status === 'red').length;
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0f0f1a', color: '#fff' }}>
-      <div style={{ background: '#1a1a2e', padding: '12px 24px', borderBottom: '1px solid #2a2a3e', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+      <div style={{ background: 'var(--bg-secondary)', padding: '12px 24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
-          <h1 style={{ fontSize: '20px', margin: 0 }}>🛡️ RescueAI | Agent Dashboard</h1>
-          <p style={{ fontSize: '11px', margin: '4px 0 0', opacity: 0.7 }}>
+          <h1 style={{ fontSize: '20px', margin: 0, color: 'var(--text-primary)' }}>🛡️ RescueAI | Agent Dashboard</h1>
+          <p style={{ fontSize: '11px', margin: '4px 0 0', color: 'var(--text-secondary)' }}>
             {language === 'ur' ? 'ریسکیو ورکر اور رضاکار پینل' : 'Rescue Worker & Volunteer Panel'}
           </p>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <Link href="/" style={{ background: '#3b82f6', padding: '6px 16px', borderRadius: '20px', color: 'white', fontSize: '12px', textDecoration: 'none' }}>
+          <Link href="/" style={{ background: 'var(--info)', padding: '6px 16px', borderRadius: '20px', color: '#fff', fontSize: '12px', textDecoration: 'none' }}>
             ← {language === 'ur' ? 'مین ڈیش بورڈ' : 'Main Dashboard'}
           </Link>
-          <button onClick={toggleLanguage} style={{ background: language === 'ur' ? '#3b82f6' : '#22c55e', border: 'none', padding: '6px 16px', borderRadius: '20px', color: 'white', fontSize: '12px', cursor: 'pointer' }}>
+          <button onClick={toggleLanguage} style={{ background: language === 'ur' ? 'var(--info)' : 'var(--safe)', border: 'none', padding: '6px 16px', borderRadius: '20px', color: '#fff', fontSize: '12px', cursor: 'pointer' }}>
             {language === 'ur' ? '🇬🇧 English' : '🇵🇰 اردو'}
           </button>
         </div>
       </div>
 
+      {/* Stats Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', padding: '20px 24px' }}>
-        <div style={{ background: '#1a1a2e', borderRadius: '12px', padding: '16px', borderLeft: '4px solid #ef4444' }}>
-          <div style={{ fontSize: '28px', fontWeight: 'bold' }}>{criticalCount}</div>
-          <div style={{ fontSize: '12px', color: '#888' }}>{language === 'ur' ? 'نازک اضلاع' : 'Critical Districts'}</div>
+        <div style={{ background: 'var(--bg-card)', borderRadius: '12px', padding: '16px', borderLeft: `4px solid var(--danger)`, boxShadow: 'var(--shadow-sm)' }}>
+          <div style={{ fontSize: '28px', fontWeight: 'bold', color: 'var(--danger)' }}>{criticalCount}</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{language === 'ur' ? 'نازک اضلاع' : 'Critical Districts'}</div>
         </div>
-        <div style={{ background: '#1a1a2e', borderRadius: '12px', padding: '16px', borderLeft: '4px solid #f59e0b' }}>
-          <div style={{ fontSize: '28px', fontWeight: 'bold' }}>{redRoadsCount}</div>
-          <div style={{ fontSize: '12px', color: '#888' }}>{language === 'ur' ? 'بند سڑکیں' : 'Closed Roads'}</div>
+        <div style={{ background: 'var(--bg-card)', borderRadius: '12px', padding: '16px', borderLeft: `4px solid var(--warning)`, boxShadow: 'var(--shadow-sm)' }}>
+          <div style={{ fontSize: '28px', fontWeight: 'bold', color: 'var(--warning)' }}>{redRoadsCount}</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{language === 'ur' ? 'بند سڑکیں' : 'Closed Roads'}</div>
         </div>
-        <div style={{ background: '#1a1a2e', borderRadius: '12px', padding: '16px', borderLeft: '4px solid #22c55e' }}>
-          <div style={{ fontSize: '28px', fontWeight: 'bold' }}>{pendingCount}</div>
-          <div style={{ fontSize: '12px', color: '#888' }}>{language === 'ur' ? 'زیر التواء رپورٹس' : 'Pending Reports'}</div>
+        <div style={{ background: 'var(--bg-card)', borderRadius: '12px', padding: '16px', borderLeft: `4px solid var(--safe)`, boxShadow: 'var(--shadow-sm)' }}>
+          <div style={{ fontSize: '28px', fontWeight: 'bold', color: 'var(--safe)' }}>{pendingCount}</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{language === 'ur' ? 'زیر التواء رپورٹس' : 'Pending Reports'}</div>
         </div>
-        <div style={{ background: '#1a1a2e', borderRadius: '12px', padding: '16px', borderLeft: '4px solid #3b82f6' }}>
-          <div style={{ fontSize: '28px', fontWeight: 'bold' }}>5</div>
-          <div style={{ fontSize: '12px', color: '#888' }}>{language === 'ur' ? 'فعال رضاکار' : 'Active Volunteers'}</div>
+        <div style={{ background: 'var(--bg-card)', borderRadius: '12px', padding: '16px', borderLeft: `4px solid var(--info)`, boxShadow: 'var(--shadow-sm)' }}>
+          <div style={{ fontSize: '28px', fontWeight: 'bold', color: 'var(--info)' }}>5</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{language === 'ur' ? 'فعال رضاکار' : 'Active Volunteers'}</div>
         </div>
       </div>
 
+      {/* Main Content */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', padding: '0 24px 24px 24px' }}>
         
         <div style={{ flex: 1, minWidth: '300px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
-          <div style={{ background: '#1a1a2e', borderRadius: '12px', overflow: 'hidden' }}>
-            <div style={{ padding: '14px 20px', background: '#0f0f1a', borderBottom: '1px solid #2a2a3e' }}>
-              <h3 style={{ fontSize: '14px', margin: 0 }}>📊 {language === 'ur' ? 'اضلاع کے خطرے کی سطح' : 'District Risk Levels'}</h3>
+          {/* District Risk Table */}
+          <div style={{ background: 'var(--bg-card)', borderRadius: '12px', overflow: 'hidden', boxShadow: 'var(--shadow-sm)', border: '1px solid var(--border)' }}>
+            <div style={{ padding: '14px 20px', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)' }}>
+              <h3 style={{ fontSize: '14px', margin: 0, color: 'var(--text-primary)' }}>📊 {language === 'ur' ? 'اضلاع کے خطرے کی سطح' : 'District Risk Levels'}</h3>
             </div>
             <div style={{ overflowX: 'auto' }}>
               {districtRisks.length === 0 ? (
-                <div style={{ padding: '40px', textAlign: 'center', color: '#666' }}>{language === 'ur' ? 'کوئی ڈیٹا نہیں' : 'No data available'}</div>
+                <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>{language === 'ur' ? 'کوئی ڈیٹا نہیں' : 'No data available'}</div>
               ) : (
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
-                    <tr style={{ borderBottom: '1px solid #2a2a3e', textAlign: 'left' }}>
-                      <th style={{ padding: '12px 16px', fontSize: '11px', color: '#888' }}>#</th>
-                      <th style={{ padding: '12px 16px', fontSize: '11px', color: '#888' }}>{language === 'ur' ? 'ضلع' : 'District'}</th>
-                      <th style={{ padding: '12px 16px', fontSize: '11px', color: '#888' }}>{language === 'ur' ? 'سکور' : 'Score'}</th>
-                      <th style={{ padding: '12px 16px', fontSize: '11px', color: '#888' }}>{language === 'ur' ? 'خطرہ' : 'Risk'}</th>
+                    <tr style={{ borderBottom: '1px solid var(--border)', textAlign: 'left' }}>
+                      <th style={{ padding: '12px 16px', fontSize: '11px', color: 'var(--text-muted)' }}>#</th>
+                      <th style={{ padding: '12px 16px', fontSize: '11px', color: 'var(--text-muted)' }}>{language === 'ur' ? 'ضلع' : 'District'}</th>
+                      <th style={{ padding: '12px 16px', fontSize: '11px', color: 'var(--text-muted)' }}>{language === 'ur' ? 'سکور' : 'Score'}</th>
+                      <th style={{ padding: '12px 16px', fontSize: '11px', color: 'var(--text-muted)' }}>{language === 'ur' ? 'خطرہ' : 'Risk'}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {districtRisks.map((risk, idx) => (
-                      <tr key={risk.id} style={{ borderBottom: '1px solid #2a2a3e' }}>
-                        <td style={{ padding: '10px 16px', fontSize: '12px' }}>{idx + 1}</td>
-                        <td style={{ padding: '10px 16px', fontSize: '12px', fontWeight: 'bold' }}>{risk.district}</td>
-                        <td style={{ padding: '10px 16px', fontSize: '12px', color: getTierColor(risk.tier) }}>{risk.score}</td>
+                      <tr key={risk.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                        <td style={{ padding: '10px 16px', fontSize: '12px', color: 'var(--text-muted)' }}>{idx + 1}</td>
+                        <td style={{ padding: '10px 16px', fontSize: '12px', fontWeight: 'bold', color: 'var(--text-primary)' }}>{risk.district}</td>
+                        <td style={{ padding: '10px 16px', fontSize: '12px', color: getTierColor(risk.tier), fontWeight: 'bold' }}>{risk.score}</td>
                         <td style={{ padding: '10px 16px', fontSize: '12px' }}>
-                          <span style={{ background: getTierColor(risk.tier), padding: '2px 8px', borderRadius: '12px', fontSize: '10px', color: '#fff' }}>
+                          <span style={{ background: getTierBgColor(risk.tier), padding: '2px 8px', borderRadius: '12px', fontSize: '10px', fontWeight: 'bold', color: getTierColor(risk.tier) }}>
                             {risk.tier === 'critical' ? (language === 'ur' ? 'نہایت خطرناک' : 'CRITICAL') : risk.tier === 'high' ? (language === 'ur' ? 'شدید' : 'HIGH') : (language === 'ur' ? 'خطرہ موجود' : 'ELEVATED')}
                           </span>
                         </td>
@@ -190,34 +206,35 @@ export default function AgentPage() {
             </div>
           </div>
 
-          <div style={{ background: '#1a1a2e', borderRadius: '12px', overflow: 'hidden' }}>
-            <div style={{ padding: '14px 20px', background: '#0f0f1a', borderBottom: '1px solid #2a2a3e' }}>
-              <h3 style={{ fontSize: '14px', margin: 0 }}>🛣️ {language === 'ur' ? 'سڑکوں کی حالت' : 'Road Status'}</h3>
+          {/* Road Status Table */}
+          <div style={{ background: 'var(--bg-card)', borderRadius: '12px', overflow: 'hidden', boxShadow: 'var(--shadow-sm)', border: '1px solid var(--border)' }}>
+            <div style={{ padding: '14px 20px', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)' }}>
+              <h3 style={{ fontSize: '14px', margin: 0, color: 'var(--text-primary)' }}>🛣️ {language === 'ur' ? 'سڑکوں کی حالت' : 'Road Status'}</h3>
             </div>
             <div style={{ overflowX: 'auto' }}>
               {roadStatus.length === 0 ? (
-                <div style={{ padding: '40px', textAlign: 'center', color: '#666' }}>{language === 'ur' ? 'کوئی ڈیٹا نہیں' : 'No data available'}</div>
+                <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>{language === 'ur' ? 'کوئی ڈیٹا نہیں' : 'No data available'}</div>
               ) : (
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
-                    <tr style={{ borderBottom: '1px solid #2a2a3e', textAlign: 'left' }}>
-                      <th style={{ padding: '12px 16px', fontSize: '11px', color: '#888' }}>{language === 'ur' ? 'سڑک کا نام' : 'Road Name'}</th>
-                      <th style={{ padding: '12px 16px', fontSize: '11px', color: '#888' }}>{language === 'ur' ? 'ضلع' : 'District'}</th>
-                      <th style={{ padding: '12px 16px', fontSize: '11px', color: '#888' }}>{language === 'ur' ? 'حالت' : 'Status'}</th>
-                      <th style={{ padding: '12px 16px', fontSize: '11px', color: '#888' }}>{language === 'ur' ? 'باقی گھنٹے' : 'Hours Left'}</th>
+                    <tr style={{ borderBottom: '1px solid var(--border)', textAlign: 'left' }}>
+                      <th style={{ padding: '12px 16px', fontSize: '11px', color: 'var(--text-muted)' }}>{language === 'ur' ? 'سڑک کا نام' : 'Road Name'}</th>
+                      <th style={{ padding: '12px 16px', fontSize: '11px', color: 'var(--text-muted)' }}>{language === 'ur' ? 'ضلع' : 'District'}</th>
+                      <th style={{ padding: '12px 16px', fontSize: '11px', color: 'var(--text-muted)' }}>{language === 'ur' ? 'حالت' : 'Status'}</th>
+                      <th style={{ padding: '12px 16px', fontSize: '11px', color: 'var(--text-muted)' }}>{language === 'ur' ? 'باقی گھنٹے' : 'Hours Left'}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {roadStatus.map((road) => (
-                      <tr key={road.id} style={{ borderBottom: '1px solid #2a2a3e' }}>
-                        <td style={{ padding: '10px 16px', fontSize: '12px', fontWeight: 'bold' }}>{road.name}</td>
-                        <td style={{ padding: '10px 16px', fontSize: '12px' }}>{road.district}</td>
+                      <tr key={road.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                        <td style={{ padding: '10px 16px', fontSize: '12px', fontWeight: 'bold', color: 'var(--text-primary)' }}>{road.name}</td>
+                        <td style={{ padding: '10px 16px', fontSize: '12px', color: 'var(--text-secondary)' }}>{road.district}</td>
                         <td style={{ padding: '10px 16px', fontSize: '12px' }}>
-                          <span style={{ background: getStatusColor(road.status), padding: '2px 8px', borderRadius: '12px', fontSize: '10px', color: '#fff' }}>
+                          <span style={{ background: getStatusBgColor(road.status), padding: '2px 8px', borderRadius: '12px', fontSize: '10px', fontWeight: 'bold', color: getStatusColor(road.status) }}>
                             {road.status === 'green' ? (language === 'ur' ? '🟢 کھلی' : '🟢 OPEN') : road.status === 'amber' ? (language === 'ur' ? '🟡 خطرہ' : '🟡 AT RISK') : (language === 'ur' ? '🔴 بند' : '🔴 CLOSED')}
                           </span>
                         </td>
-                        <td style={{ padding: '10px 16px', fontSize: '12px' }}>{road.hours ? `${road.hours}h` : '—'}</td>
+                        <td style={{ padding: '10px 16px', fontSize: '12px', color: 'var(--text-secondary)' }}>{road.hours ? `${road.hours}h` : '—'}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -227,29 +244,30 @@ export default function AgentPage() {
           </div>
         </div>
 
-        <div style={{ width: '380px', background: '#1a1a2e', borderRadius: '12px', overflow: 'hidden' }}>
-          <div style={{ padding: '14px 20px', background: '#0f0f1a', borderBottom: '1px solid #2a2a3e', display: 'flex', justifyContent: 'space-between' }}>
-            <h3 style={{ fontSize: '14px', margin: 0 }}>📋 {language === 'ur' ? 'زیر التواء رپورٹس' : 'Pending Reports'}</h3>
-            <span style={{ background: '#ef4444', padding: '2px 8px', borderRadius: '12px', fontSize: '11px' }}>{pendingCount}</span>
+        {/* Pending Reports */}
+        <div style={{ width: '380px', background: 'var(--bg-card)', borderRadius: '12px', overflow: 'hidden', boxShadow: 'var(--shadow-sm)', border: '1px solid var(--border)' }}>
+          <div style={{ padding: '14px 20px', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between' }}>
+            <h3 style={{ fontSize: '14px', margin: 0, color: 'var(--text-primary)' }}>📋 {language === 'ur' ? 'زیر التواء رپورٹس' : 'Pending Reports'}</h3>
+            <span style={{ background: 'var(--danger)', padding: '2px 8px', borderRadius: '12px', fontSize: '11px', color: '#fff' }}>{pendingCount}</span>
           </div>
           <div style={{ maxHeight: '500px', overflowY: 'auto', padding: '16px' }}>
             {pendingCount === 0 ? (
-              <div style={{ textAlign: 'center', color: '#666', padding: '40px' }}>✅ {language === 'ur' ? 'کوئی رپورٹ زیر التواء نہیں' : 'No pending reports'}</div>
+              <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '40px' }}>✅ {language === 'ur' ? 'کوئی رپورٹ زیر التواء نہیں' : 'No pending reports'}</div>
             ) : (
               reports.map(report => (
-                <div key={report.id} style={{ background: '#0f0f1a', borderRadius: '10px', padding: '14px', marginBottom: '12px', border: `2px solid ${report.severity === 'critical' ? '#ef4444' : '#f97316'}` }}>
+                <div key={report.id} style={{ background: 'var(--bg-sidebar)', borderRadius: '10px', padding: '14px', marginBottom: '12px', border: `2px solid ${report.severity === 'critical' ? 'var(--danger)' : 'var(--warning)'}` }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    <strong style={{ fontSize: '14px' }}>{report.district}</strong>
-                    <span style={{ background: report.severity === 'critical' ? '#ef4444' : report.severity === 'high' ? '#f97316' : '#eab308', padding: '2px 10px', borderRadius: '12px', fontSize: '10px', fontWeight: 'bold' }}>
+                    <strong style={{ fontSize: '14px', color: 'var(--text-primary)' }}>{report.district}</strong>
+                    <span style={{ background: report.severity === 'critical' ? 'var(--danger)' : report.severity === 'high' ? 'var(--warning)' : '#eab308', padding: '2px 10px', borderRadius: '12px', fontSize: '10px', fontWeight: 'bold', color: '#fff' }}>
                       {report.severity === 'critical' ? (language === 'ur' ? 'نہایت خطرناک' : 'CRITICAL') : report.severity === 'high' ? (language === 'ur' ? 'شدید' : 'HIGH') : (language === 'ur' ? 'درمیانی' : 'MEDIUM')}
                     </span>
                   </div>
-                  <div style={{ fontSize: '12px', marginBottom: '4px' }}>📍 {report.location}</div>
-                  <div style={{ fontSize: '11px', color: '#aaa', marginBottom: '8px' }}>{report.description}</div>
-                  <div style={{ fontSize: '10px', color: '#666', marginBottom: '12px' }}>📞 {report.reporter} | 🕐 {report.time}</div>
+                  <div style={{ fontSize: '12px', marginBottom: '4px', color: 'var(--text-secondary)' }}>📍 {report.location}</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '8px' }}>{report.description}</div>
+                  <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginBottom: '12px' }}>📞 {report.reporter} | 🕐 {report.time}</div>
                   <div style={{ display: 'flex', gap: '10px' }}>
-                    <button onClick={() => handleVerifyReport(report.id)} style={{ background: '#22c55e', border: 'none', padding: '6px 12px', borderRadius: '6px', color: '#fff', fontSize: '11px', cursor: 'pointer', flex: 1 }}>✓ {language === 'ur' ? 'تصدیق کریں' : 'Verify'}</button>
-                    <button onClick={() => handleRejectReport(report.id)} style={{ background: '#ef4444', border: 'none', padding: '6px 12px', borderRadius: '6px', color: '#fff', fontSize: '11px', cursor: 'pointer', flex: 1 }}>✗ {language === 'ur' ? 'مسترد کریں' : 'Reject'}</button>
+                    <button onClick={() => handleVerifyReport(report.id)} style={{ background: 'var(--safe)', border: 'none', padding: '6px 12px', borderRadius: '6px', color: '#fff', fontSize: '11px', cursor: 'pointer', flex: 1 }}>✓ {language === 'ur' ? 'تصدیق کریں' : 'Verify'}</button>
+                    <button onClick={() => handleRejectReport(report.id)} style={{ background: 'var(--danger)', border: 'none', padding: '6px 12px', borderRadius: '6px', color: '#fff', fontSize: '11px', cursor: 'pointer', flex: 1 }}>✗ {language === 'ur' ? 'مسترد کریں' : 'Reject'}</button>
                   </div>
                 </div>
               ))

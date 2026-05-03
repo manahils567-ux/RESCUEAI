@@ -7,21 +7,21 @@ export default function LayerControls({ activeLayers, setActiveLayers, language 
   };
 
   const layers = [
-    { id: 'roads', labelEn: 'Main Roads', labelUr: 'مرکزی سڑکیں', color: '#22c55e' },
-    { id: 'floods', labelEn: 'Flood Area', labelUr: 'سیلاب کا علاقہ', color: '#3b82f6' },
-    { id: 'citizenReports', labelEn: 'Citizen Reports', labelUr: 'شہری اطلاع', color: '#f97316' },
+    { id: 'roads', labelEn: 'Main Roads', labelUr: 'مرکزی سڑکیں', color: 'var(--safe)' },
+    { id: 'floods', labelEn: 'Flood Area', labelUr: 'سیلاب کا علاقہ', color: 'var(--info)' },
+    { id: 'citizenReports', labelEn: 'Citizen Reports', labelUr: 'شہری اطلاع', color: 'var(--warning)' },
     { id: 'rescue', labelEn: 'Rescue Stations', labelUr: 'ریسکیو اسٹیشن', color: '#06b6d4' },
-    { id: 'gauges', labelEn: 'River Level Gauges', labelUr: 'دریا گیج', color: '#f59e0b' }
+    { id: 'gauges', labelEn: 'River Level Gauges', labelUr: 'دریا گیج', color: 'var(--warning)' }
   ];
 
   return (
     <div style={{ 
-      background: '#0f0f1a', 
+      background: 'var(--bg-card)', 
       borderRadius: '10px', 
       padding: '12px',
-      border: '1px solid #2a2a3e'
+      border: '1px solid var(--border)'
     }}>
-      <h3 style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', color: '#888', marginBottom: '12px' }}>
+      <h3 style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
         {language === 'ur' ? '🎮 پرت کنٹرول' : '🎮 LAYER CONTROLS'}
       </h3>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -33,7 +33,7 @@ export default function LayerControls({ activeLayers, setActiveLayers, language 
             cursor: 'pointer',
             padding: '6px 8px',
             borderRadius: '6px',
-            background: activeLayers[layer.id] ? 'rgba(59,130,246,0.1)' : 'transparent',
+            background: activeLayers[layer.id] ? 'var(--info-light)' : 'transparent',
             transition: 'all 0.2s ease'
           }}>
             <input
@@ -48,12 +48,12 @@ export default function LayerControls({ activeLayers, setActiveLayers, language 
               }}
             />
             <div style={{ width: '12px', height: '12px', borderRadius: '2px', background: layer.color }}></div>
-            <span style={{ color: activeLayers[layer.id] ? '#fff' : '#888', fontSize: '12px', flex: 1 }}>
+            <span style={{ color: activeLayers[layer.id] ? 'var(--text-primary)' : 'var(--text-muted)', fontSize: '12px', flex: 1 }}>
               {language === 'ur' ? layer.labelUr : layer.labelEn}
             </span>
             <span style={{ 
               fontSize: '10px', 
-              color: activeLayers[layer.id] ? '#22c55e' : '#666',
+              color: activeLayers[layer.id] ? 'var(--safe)' : 'var(--text-muted)',
               fontWeight: 'bold'
             }}>
               {activeLayers[layer.id] ? (language === 'ur' ? 'آن' : 'ON') : (language === 'ur' ? 'آف' : 'OFF')}
@@ -65,9 +65,9 @@ export default function LayerControls({ activeLayers, setActiveLayers, language 
       <div style={{ 
         marginTop: '12px', 
         paddingTop: '10px', 
-        borderTop: '1px solid #2a2a3e',
+        borderTop: '1px solid var(--border)',
         fontSize: '10px',
-        color: '#666',
+        color: 'var(--text-muted)',
         textAlign: 'center'
       }}>
         {language === 'ur' ? '💡 منظر کو حسب ضرورت بنانے کے لیے ٹوگل کریں۔' : '💡 Toggle layers to customize view'}

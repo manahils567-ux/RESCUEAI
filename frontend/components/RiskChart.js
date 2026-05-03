@@ -16,7 +16,6 @@ export default function RiskChart({ language = 'ur' }) {
       const risksData = await fetchRiskScores('Punjab');
       
       if (risksData && risksData.length > 0) {
-        // Sort by score and get top 7 districts for chart
         const sorted = [...risksData].sort((a, b) => b.score - a.score).slice(0, 7);
         
         const chartData = sorted.map((item, idx) => ({
@@ -30,7 +29,6 @@ export default function RiskChart({ language = 'ur' }) {
         const peak = sorted.reduce((max, item) => item.score > max.score ? item : max, sorted[0]);
         setPeakRisk(peak);
       } else {
-        // Fallback mock data
         setData([
           { hour: 'Nowshera', risk: 92 },
           { hour: 'Charsadda', risk: 88 },
@@ -48,44 +46,43 @@ export default function RiskChart({ language = 'ur' }) {
     
     loadChartData();
     
-    // Refresh every 60 seconds
     const interval = setInterval(loadChartData, 60000);
     return () => clearInterval(interval);
   }, []);
 
   if (loading) {
     return (
-      <div style={{ background: '#0f0f1a', borderRadius: '10px', padding: '16px', border: '1px solid #2a2a3e' }}>
-        <h3 style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', color: '#888', marginBottom: '12px' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: '10px', padding: '16px', border: '1px solid var(--border)' }}>
+        <h3 style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '12px' }}>
           📈 {language === 'ur' ? 'خطرے کی پیش گوئی' : 'RISK FORECAST'}
         </h3>
         <div style={{ height: '150px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <span style={{ color: '#666', fontSize: '11px' }}>Loading chart...</span>
+          <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>Loading chart...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ background: '#0f0f1a', borderRadius: '10px', padding: '16px', border: '1px solid #2a2a3e' }}>
-      <h3 style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', color: '#888', marginBottom: '12px' }}>
+    <div style={{ background: 'var(--bg-card)', borderRadius: '10px', padding: '16px', border: '1px solid var(--border)' }}>
+      <h3 style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
         📈 {language === 'ur' ? 'خطرے کی پیش گوئی' : 'RISK FORECAST'} — TOP 7
       </h3>
       <ResponsiveContainer width="100%" height={140}>
         <LineChart data={data}>
-          <CartesianGrid strokeDasharray="2 2" stroke="#2a2a3e" />
-          <XAxis dataKey="hour" stroke="#666" fontSize={9} tick={{ fill: '#666' }} angle={-15} textAnchor="end" height={40} />
-          <YAxis stroke="#666" fontSize={9} domain={[0, 100]} tick={{ fill: '#666' }} />
+          <CartesianGrid strokeDasharray="2 2" stroke="var(--border)" />
+          <XAxis dataKey="hour" stroke="var(--text-muted)" fontSize={9} tick={{ fill: 'var(--text-muted)' }} angle={-15} textAnchor="end" height={40} />
+          <YAxis stroke="var(--text-muted)" fontSize={9} domain={[0, 100]} tick={{ fill: 'var(--text-muted)' }} />
           <Tooltip 
-            contentStyle={{ background: '#1a1a2e', border: 'none', borderRadius: '8px', fontSize: '11px' }}
-            labelStyle={{ color: '#fff' }}
+            contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', fontSize: '11px' }}
+            labelStyle={{ color: 'var(--text-primary)' }}
           />
-          <Line type="monotone" dataKey="risk" stroke="#ef4444" strokeWidth={2} dot={{ fill: '#ef4444', r: 3 }} />
+          <Line type="monotone" dataKey="risk" stroke="var(--danger)" strokeWidth={2} dot={{ fill: 'var(--danger)', r: 3 }} />
         </LineChart>
       </ResponsiveContainer>
       <div style={{ textAlign: 'center', marginTop: '10px' }}>
         {peakRisk && (
-          <span style={{ fontSize: '9px', color: '#ef4444' }}>
+          <span style={{ fontSize: '9px', color: 'var(--danger)' }}>
             {language === 'ur' ? 'سب سے زیادہ خطرہ' : 'Highest risk'}: {peakRisk.district || peakRisk.union_council} — {peakRisk.score}/100
           </span>
         )}

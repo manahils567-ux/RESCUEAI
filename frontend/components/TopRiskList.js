@@ -4,10 +4,17 @@ import { useEffect, useState } from 'react';
 import { fetchRiskScores } from '../lib/api';
 
 const getScoreColor = (score, tier) => {
-  if (tier === 'critical' || tier === 'red' || score >= 80) return '#ef4444';
-  if (tier === 'high' || tier === 'amber' || score >= 60) return '#f97316';
+  if (tier === 'critical' || tier === 'red' || score >= 80) return 'var(--danger)';
+  if (tier === 'high' || tier === 'amber' || score >= 60) return 'var(--warning)';
   if (tier === 'elevated' || score >= 40) return '#eab308';
-  return '#22c55e';
+  return 'var(--safe)';
+};
+
+const getBgColor = (score, tier) => {
+  if (tier === 'critical' || tier === 'red' || score >= 80) return 'var(--danger-light)';
+  if (tier === 'high' || tier === 'amber' || score >= 60) return 'var(--warning-light)';
+  if (tier === 'elevated' || score >= 40) return '#fef3c7';
+  return 'var(--safe-light)';
 };
 
 const getTierLabel = (tier, score, language) => {
@@ -27,7 +34,6 @@ export default function TopRiskList({ language = 'ur' }) {
       const data = await fetchRiskScores('Punjab');
       
       if (data && data.length > 0) {
-        // Transform backend data to match frontend format
         const formattedRisks = data
           .map((item, index) => ({
             id: index + 1,
@@ -36,10 +42,9 @@ export default function TopRiskList({ language = 'ur' }) {
             tier: item.tier || (item.score >= 80 ? 'red' : item.score >= 60 ? 'amber' : 'green')
           }))
           .sort((a, b) => b.score - a.score)
-          .slice(0, 7); // Top 7 only
+          .slice(0, 7);
         setRisks(formattedRisks);
       } else {
-        // Fallback - no data
         setRisks([]);
       }
       setLoading(false);
@@ -50,11 +55,11 @@ export default function TopRiskList({ language = 'ur' }) {
 
   if (loading) {
     return (
-      <div style={{ background: '#0f0f1a', borderRadius: '10px', padding: '12px', border: '1px solid #2a2a3e' }}>
-        <h3 style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', color: '#888', marginBottom: '12px' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: '10px', padding: '12px', border: '1px solid var(--border)' }}>
+        <h3 style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
           {language === 'ur' ? '🚨 خطرناک اضلاع' : '🚨 RISK DISTRICTS'}
         </h3>
-        <div style={{ textAlign: 'center', color: '#666', padding: '20px' }}>
+        <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '20px' }}>
           {language === 'ur' ? 'لوڈ ہو رہا ہے...' : 'Loading...'}
         </div>
       </div>
@@ -63,11 +68,11 @@ export default function TopRiskList({ language = 'ur' }) {
 
   if (risks.length === 0) {
     return (
-      <div style={{ background: '#0f0f1a', borderRadius: '10px', padding: '12px', border: '1px solid #2a2a3e' }}>
-        <h3 style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', color: '#888', marginBottom: '12px' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: '10px', padding: '12px', border: '1px solid var(--border)' }}>
+        <h3 style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
           {language === 'ur' ? '🚨 خطرناک اضلاع' : '🚨 RISK DISTRICTS'}
         </h3>
-        <div style={{ textAlign: 'center', color: '#666', padding: '20px' }}>
+        <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '20px' }}>
           {language === 'ur' ? 'کوئی ڈیٹا نہیں' : 'No data available'}
         </div>
       </div>
@@ -76,19 +81,19 @@ export default function TopRiskList({ language = 'ur' }) {
 
   return (
     <div style={{ 
-      background: '#0f0f1a', 
+      background: 'var(--bg-card)', 
       borderRadius: '10px', 
       padding: '12px',
-      border: '1px solid #2a2a3e'
+      border: '1px solid var(--border)'
     }}>
-      <h3 style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', color: '#888', marginBottom: '12px' }}>
+      <h3 style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
         {language === 'ur' ? '🚨 خطرناک اضلاع' : '🚨 RISK DISTRICTS'}
       </h3>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {risks.map((risk) => (
           <div key={risk.id}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-              <span style={{ color: '#fff', fontSize: '12px' }}>{risk.district}</span>
+              <span style={{ color: 'var(--text-primary)', fontSize: '12px' }}>{risk.district}</span>
               <span style={{ 
                 color: getScoreColor(risk.score, risk.tier), 
                 fontWeight: 'bold', 
@@ -97,16 +102,16 @@ export default function TopRiskList({ language = 'ur' }) {
             </div>
             <div style={{ 
               width: '100%', 
-              height: '3px', 
-              background: '#2a2a3e', 
-              borderRadius: '2px',
+              height: '4px', 
+              background: getBgColor(risk.score, risk.tier), 
+              borderRadius: '4px',
               overflow: 'hidden'
             }}>
               <div style={{ 
                 width: `${risk.score}%`, 
                 height: '100%', 
                 background: getScoreColor(risk.score, risk.tier),
-                borderRadius: '2px'
+                borderRadius: '4px'
               }} />
             </div>
           </div>

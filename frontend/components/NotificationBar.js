@@ -11,7 +11,6 @@ export default function NotificationBar({ language = 'ur' }) {
     const loadAlerts = async () => {
       setLoading(true);
       
-      // Fetch risk data and reports for alerts
       const [risksData, reportsData] = await Promise.all([
         fetchRiskScores('Punjab'),
         fetchReports('all')
@@ -19,7 +18,6 @@ export default function NotificationBar({ language = 'ur' }) {
       
       const newAlerts = [];
       
-      // Critical risk alerts
       if (risksData && risksData.length > 0) {
         const criticalRisks = risksData.filter(r => r.score >= 80 || r.tier === 'red' || r.tier === 'critical');
         criticalRisks.slice(0, 2).forEach(risk => {
@@ -34,7 +32,6 @@ export default function NotificationBar({ language = 'ur' }) {
         });
       }
       
-      // Recent unverified reports
       if (reportsData && reportsData.length > 0) {
         const unverified = reportsData.filter(r => !r.verified).slice(0, 2);
         unverified.forEach(report => {
@@ -49,7 +46,6 @@ export default function NotificationBar({ language = 'ur' }) {
         });
       }
       
-      // If no real alerts, show mock
       if (newAlerts.length === 0) {
         newAlerts.push({
           id: 'default',
@@ -67,15 +63,14 @@ export default function NotificationBar({ language = 'ur' }) {
     
     loadAlerts();
     
-    // Refresh every 60 seconds
     const interval = setInterval(loadAlerts, 60000);
     return () => clearInterval(interval);
   }, [language]);
 
   if (loading && alerts.length === 0) {
     return (
-      <div style={{ background: '#0f0f1a', borderTop: '1px solid #2a2a3e', padding: '10px 20px' }}>
-        <div style={{ fontSize: '11px', color: '#666', textAlign: 'center' }}>
+      <div style={{ background: 'var(--bg-secondary)', borderTop: '1px solid var(--border)', padding: '10px 20px' }}>
+        <div style={{ fontSize: '11px', color: 'var(--text-muted)', textAlign: 'center' }}>
           {language === 'ur' ? 'الرٹس لوڈ ہو رہے ہیں...' : 'Loading alerts...'}
         </div>
       </div>
@@ -84,24 +79,25 @@ export default function NotificationBar({ language = 'ur' }) {
 
   return (
     <div style={{ 
-      background: '#0f0f1a', 
-      borderTop: alerts.some(a => a.severity === 'critical') ? '2px solid #ef4444' : '1px solid #2a2a3e',
+      background: 'var(--bg-secondary)', 
+      borderTop: alerts.some(a => a.severity === 'critical') ? '2px solid var(--danger)' : '1px solid var(--border)',
       padding: '10px 20px'
     }}>
       {alerts.map(alert => (
         <div key={alert.id} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span style={{ 
-            background: alert.severity === 'critical' ? '#ef4444' : alert.severity === 'warning' ? '#f97316' : '#3b82f6',
+            background: alert.severity === 'critical' ? 'var(--danger)' : alert.severity === 'warning' ? 'var(--warning)' : 'var(--info)',
             padding: '2px 8px', 
             borderRadius: '4px', 
             fontSize: '9px', 
             fontWeight: 'bold',
-            letterSpacing: '1px'
+            letterSpacing: '1px',
+            color: '#fff'
           }}>
             {alert.severity === 'critical' ? (language === 'ur' ? '⚠️ الرٹ' : '⚠️ ALERT') :
              alert.severity === 'warning' ? (language === 'ur' ? '📢 اطلاع' : '📢 NOTICE') : (language === 'ur' ? 'ℹ️ معلومات' : 'ℹ️ INFO')}
           </span>
-          <span style={{ color: '#fff', fontSize: '11px', lineHeight: '1.4' }}>
+          <span style={{ color: 'var(--text-primary)', fontSize: '11px', lineHeight: '1.4' }}>
             <strong>{alert.district}:</strong> {alert.message}
           </span>
         </div>

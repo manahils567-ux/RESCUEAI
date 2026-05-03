@@ -6,7 +6,6 @@ import 'leaflet/dist/leaflet.css';
 
 import Link from 'next/link';
 import TopRiskList from '../components/TopRiskList';
-import SatelliteIntel from '../components/SatelliteIntel';
 import RiskChart from '../components/RiskChart';
 import AIChatbot from '../components/AIChatbot';
 import LayerControls from '../components/LayerControls';
@@ -16,7 +15,7 @@ import MapLegend from '../components/MapLegend';
 const MapComponent = dynamic(() => import('../components/Map'), { 
   ssr: false,
   loading: () => (
-    <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1a1a2e', color: '#fff' }}>
+    <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
       Loading map...
     </div>
   )
@@ -29,7 +28,6 @@ export default function Home() {
     citizenReports: true,
     rescue: false,
     gauges: false
-    // infrastructure: false  ← REMOVED
   });
   
   const [isLeftPanelOpen, setIsLeftPanelOpen] = useState(false);
@@ -60,7 +58,7 @@ export default function Home() {
 
   if (!mounted) {
     return (
-      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f0f1a', color: '#fff' }}>
+      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
         Loading RescueAI...
       </div>
     );
@@ -69,27 +67,27 @@ export default function Home() {
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Header */}
-      <div style={{ background: '#0f0f1a', color: 'white', padding: '8px 16px', borderBottom: '1px solid #2a2a3e', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+      <div style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', padding: '8px 16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
         <div>
-          <h1 style={{ fontSize: '18px', margin: 0 }}>RescueAI</h1>
-          <p style={{ fontSize: '10px', margin: '2px 0 0', opacity: 0.7 }}>
+          <h1 style={{ fontSize: '18px', margin: 0, color: 'var(--text-primary)' }}>RescueAI</h1>
+          <p style={{ fontSize: '10px', margin: '2px 0 0', color: 'var(--text-secondary)' }}>
             {language === 'ur' ? 'فلڈ انٹیلی جنس سسٹم' : 'Flood Intelligence System'}
           </p>
         </div>
         
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           {/* 2022 Replay Link */}
-          <Link href="/replay-2022" style={{ background: '#8b5cf6', padding: '5px 14px', borderRadius: '20px', color: '#fff', fontSize: '12px', textDecoration: 'none' }}>
+          <Link href="/replay-2022" style={{ background: 'var(--purple)', padding: '5px 14px', borderRadius: '20px', color: '#fff', fontSize: '12px', textDecoration: 'none' }}>
             📜 2022 Replay
           </Link>
           
           {/* Agent Mode Button */}
           <Link href="/agent" style={{ 
-            background: '#8b5cf6', 
+            background: 'var(--purple)', 
             border: 'none', 
             padding: '5px 14px', 
             borderRadius: '20px', 
-            color: 'white', 
+            color: '#fff', 
             fontSize: '12px', 
             fontWeight: 'bold',
             textDecoration: 'none',
@@ -105,7 +103,7 @@ export default function Home() {
           <button
             onClick={toggleLanguage}
             style={{
-              background: language === 'ur' ? '#3b82f6' : '#22c55e',
+              background: language === 'ur' ? 'var(--info)' : 'var(--safe)',
               border: 'none',
               padding: '5px 14px',
               borderRadius: '20px',
@@ -121,8 +119,8 @@ export default function Home() {
           {/* Mobile Menu Buttons */}
           {isMobile && (
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={() => setIsLeftPanelOpen(!isLeftPanelOpen)} style={{ background: '#3b82f6', border: 'none', padding: '5px 10px', borderRadius: '6px', color: 'white', fontSize: '10px', cursor: 'pointer' }}>📋 Menu</button>
-              <button onClick={() => setIsRightPanelOpen(!isRightPanelOpen)} style={{ background: '#3b82f6', border: 'none', padding: '5px 10px', borderRadius: '6px', color: 'white', fontSize: '10px', cursor: 'pointer' }}>🤖 AI</button>
+              <button onClick={() => setIsLeftPanelOpen(!isLeftPanelOpen)} style={{ background: 'var(--info)', border: 'none', padding: '5px 10px', borderRadius: '6px', color: 'white', fontSize: '10px', cursor: 'pointer' }}>📋 Menu</button>
+              <button onClick={() => setIsRightPanelOpen(!isRightPanelOpen)} style={{ background: 'var(--info)', border: 'none', padding: '5px 10px', borderRadius: '6px', color: 'white', fontSize: '10px', cursor: 'pointer' }}>🤖 AI</button>
             </div>
           )}
         </div>
@@ -134,13 +132,13 @@ export default function Home() {
         {/* LEFT PANEL */}
         <div style={{ 
           width: 260, 
-          background: '#1a1a2e', 
+          background: 'var(--bg-sidebar)', 
           overflowY: 'auto', 
           padding: '12px',
           display: 'flex',
           flexDirection: 'column',
           gap: '16px',
-          borderRight: '1px solid #2a2a3e',
+          borderRight: '1px solid var(--border)',
           ...(isMobile ? {
             position: 'fixed',
             top: 0,
@@ -153,7 +151,7 @@ export default function Home() {
           } : {})
         }}>
           {isMobile && (
-            <button onClick={() => setIsLeftPanelOpen(false)} style={{ alignSelf: 'flex-end', background: '#ef4444', border: 'none', padding: '4px 12px', borderRadius: '4px', color: 'white', fontSize: '11px', cursor: 'pointer' }}>✕ Close</button>
+            <button onClick={() => setIsLeftPanelOpen(false)} style={{ alignSelf: 'flex-end', background: 'var(--danger)', border: 'none', padding: '4px 12px', borderRadius: '4px', color: '#fff', fontSize: '11px', cursor: 'pointer' }}>✕ Close</button>
           )}
           <TopRiskList language={language} />
           <LayerControls activeLayers={activeLayers} setActiveLayers={setActiveLayers} language={language} />
@@ -168,13 +166,13 @@ export default function Home() {
         {/* RIGHT PANEL */}
         <div style={{ 
           width: 300, 
-          background: '#1a1a2e', 
+          background: 'var(--bg-sidebar)', 
           overflowY: 'auto', 
           padding: '12px',
           display: 'flex',
           flexDirection: 'column',
           gap: '16px',
-          borderLeft: '1px solid #2a2a3e',
+          borderLeft: '1px solid var(--border)',
           ...(isMobile ? {
             position: 'fixed',
             top: 0,
@@ -187,9 +185,8 @@ export default function Home() {
           } : {})
         }}>
           {isMobile && (
-            <button onClick={() => setIsRightPanelOpen(false)} style={{ alignSelf: 'flex-end', background: '#ef4444', border: 'none', padding: '4px 12px', borderRadius: '4px', color: 'white', fontSize: '11px', cursor: 'pointer' }}>✕ Close</button>
+            <button onClick={() => setIsRightPanelOpen(false)} style={{ alignSelf: 'flex-end', background: 'var(--danger)', border: 'none', padding: '4px 12px', borderRadius: '4px', color: '#fff', fontSize: '11px', cursor: 'pointer' }}>✕ Close</button>
           )}
-          <SatelliteIntel language={language} />
           <RiskChart language={language} />
           <div style={{ flex: 1, minHeight: '280px', display: 'flex', flexDirection: 'column' }}>
             <AIChatbot language={language} />
