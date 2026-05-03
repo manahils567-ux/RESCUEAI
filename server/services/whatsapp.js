@@ -1,5 +1,6 @@
 const axios = require('axios');
 const { detectIntent } = require('./intentDetector');
+const pendingRegistrations = new Map();
 const ur = require('../locales/ur');
 const pa = require('../locales/pa');
 const sd = require('../locales/sd');
@@ -35,7 +36,22 @@ async function handleIncomingMessage(message, contact) {
   // FLOW C — User sends text
   if (type === 'text') {
     const text = message.text.body;
-    const intent = detectIntent(text);
+
+    // Check if user is in middle of registration flow
+    const pending = pendingRegistrations.get(from);
+    if (pending?.step === 'awaiting_district') {
+      pendingRegistrations.delete(from);
+      const { registerPhone } = require('./sms');
+      await registerPhone(from, text.trim(), text.trim(), 'ur');
+      await sendText(from,
+        `✅ ${text.trim()} ke liye register ho gaye!\n` +
+        `آپ کو سیلاب کے الرٹس ملیں گے۔\n` +
+        `You will now receive flood alerts for ${text.trim()}.`
+      );
+      return;
+    }
+
+  const intent = detectIntent(text);
 
     console.log(`🎯 Intent detected: ${intent}`);
 
@@ -57,10 +73,11 @@ async function handleIncomingMessage(message, contact) {
       );
     }
     else if (intent === 'REGISTER') {
+      pendingRegistrations.set(from, { step: 'awaiting_district' });
       await sendText(from,
-      'رجسٹریشن کے لیے اپنا ضلع لکھیں۔ مثال: Rajanpur\n' +
-      'To register, reply with your district name. Example: Rajanpur'
-    );
+        'رجسٹریشن کے لیے اپنا ضلع لکھیں۔ مثال: Rajanpur\n' +
+        'To register, reply with your district name. Example: Rajanpur'
+      );
     }
     else {
       await sendText(from, ur.HELP_MESSAGE);
