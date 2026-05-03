@@ -17,12 +17,35 @@ function detectRiver(station) {
 
 async function scrapePMDGauges() {
   try {
-    const { data } = await axios.get(FFD_URL, {
-      timeout: 20000,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    // Retry logic for transient errors
+    let data;
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        const resp = await axios.get(FFD_URL, {
+          timeout: 20000,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
+        });
+        data = resp.data;
+        break;
+      } catch (e) {
+        // If unauthorized, stop retrying and surface a clear message
+        if (e.response && e.response.status === 401) {
+          console.error('PMD scrape error: 401 Unauthorized — check PMD access or IP restrictions');
+          throw e;
+        }
+        if (attempt < maxAttempts) {
+          const waitMs = 1000 * attempt;
+          console.warn(`PMD fetch attempt ${attempt} failed (${e.message}), retrying in ${waitMs}ms`);
+          await new Promise((r) => setTimeout(r, waitMs));
+          continue;
+        }
+        // rethrow after final attempt
+        throw e;
       }
-    });
+    }
 
     const $ = cheerio.load(data);
     const readings = [];
@@ -65,6 +88,8 @@ async function scrapePMDGauges() {
       await insertFallbackGaugeData();
     }
   } catch (err) {
+    // If 401 we already logged above; avoid inserting fallback data for auth issues
+    if (err.response && err.response.status === 401) return;
     console.error('PMD scrape error:', err.message);
     await insertFallbackGaugeData();
   }

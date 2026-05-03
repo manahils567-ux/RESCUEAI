@@ -4,33 +4,48 @@ import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
 import { mockRoads, mockFloodPolygons, mockGroundReports, mockReliefCamps } from '../lib/mockData';
+import { fetchRoads, fetchReports, fetchReliefCamps, fetchRiverGauges, fetchFloodEvents } from '../lib/api';
 
-// Dynamically import Leaflet components (SSR fix)
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
 const Polyline = dynamic(() => import('react-leaflet').then(mod => mod.Polyline), { ssr: false });
 const Polygon = dynamic(() => import('react-leaflet').then(mod => mod.Polygon), { ssr: false });
 const CircleMarker = dynamic(() => import('react-leaflet').then(mod => mod.CircleMarker), { ssr: false });
+const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false });
 const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ssr: false });
 
-// Road colors according to status
 const STATUS_COLORS = {
   green: '#22c55e',
   amber: '#f59e0b',
   red: '#ef4444'
 };
 
-export default function MapComponent({ district = 'Rajanpur', replayTimestamp = null }) {
+const SEVERITY_COLORS = {
+  high: { bg: '#ef4444', fill: '#ef4444', labelEn: 'High', labelUr: 'شدید' },
+  medium: { bg: '#f97316', fill: '#f97316', labelEn: 'Medium', labelUr: 'درمیانی' },
+  low: { bg: '#eab308', fill: '#eab308', labelEn: 'Low', labelUr: 'معمولی' }
+};
+
+export default function MapComponent({ activeLayers = {}, language = 'ur', district = 'Rajanpur', replayData = null }) {
   const [roads, setRoads] = useState([]);
   const [floods, setFloods] = useState([]);
   const [reports, setReports] = useState([]);
   const [camps, setCamps] = useState([]);
+  const [gauges, setGauges] = useState([]);
   const [isMounted, setIsMounted] = useState(false);
+  const [mapKey, setMapKey] = useState(1);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (replayData && replayData.floods) {
+      setFloods(replayData.floods);
+    }
+  }, [replayData]);
 
   useEffect(() => {
     setIsMounted(true);
+    setMapKey(prev => prev + 1);
     
-    // Dynamically import Leaflet icons only on client side
     import('leaflet').then(L => {
       delete L.Icon.Default.prototype._getIconUrl;
       L.Icon.Default.mergeOptions({
@@ -43,100 +58,164 @@ export default function MapComponent({ district = 'Rajanpur', replayTimestamp = 
 
   useEffect(() => {
     if (!isMounted) return;
-    // Using mock data for now
+    
+const loadData = async () => {
+  setLoading(true);
+  
+  try {
+    const [roadsData, reportsData, campsData, gaugesData, floodsData] = await Promise.all([
+      fetchRoads(district).catch(() => null),
+      fetchReports(district).catch(() => null),
+      fetchReliefCamps(district).catch(() => null),
+      fetchRiverGauges().catch(() => null),
+      fetchFloodEvents().catch(() => null)
+    ]);
+    
+    // Roads
+    if (roadsData && Array.isArray(roadsData) && roadsData.length > 0) {
+      console.log('✅ Using real roads data:', roadsData.length);
+      setRoads(roadsData);
+    } else {
+      console.log('⚠️ No real roads data, using mock');
+      setRoads(mockRoads);
+    }
+    
+    // Reports
+    if (reportsData && Array.isArray(reportsData) && reportsData.length > 0) {
+      console.log('✅ Using real reports data:', reportsData.length);
+      setReports(reportsData);
+    } else {
+      console.log('⚠️ No real reports data, using mock');
+      setReports(mockGroundReports);
+    }
+    
+    // Camps
+    if (campsData && Array.isArray(campsData) && campsData.length > 0) {
+      console.log('✅ Using real camps data:', campsData.length);
+      setCamps(campsData);
+    } else {
+      console.log('⚠️ No real camps data, using mock');
+      setCamps(mockReliefCamps);
+    }
+    
+    // Gauges
+    if (gaugesData && Array.isArray(gaugesData) && gaugesData.length > 0) {
+      console.log('✅ Using real gauges data:', gaugesData.length);
+      setGauges(gaugesData);
+    } else {
+      console.log('⚠️ No real gauges data');
+      setGauges([]);
+    }
+
+    // Floods - REAL DATA from database
+    if (floodsData && Array.isArray(floodsData) && floodsData.length > 0) {
+      console.log('✅ Real flood data loaded:', floodsData.length);
+      setFloods(floodsData);
+    } else {
+      console.log('⚠️ Using mock flood polygons');
+      setFloods(mockFloodPolygons);
+    }
+    
+  } catch (error) {
+    console.error('Map data fetch error:', error);
+    // Fallback to mock data on error
     setRoads(mockRoads);
-    setFloods(mockFloodPolygons);
     setReports(mockGroundReports);
     setCamps(mockReliefCamps);
-  }, [district, replayTimestamp, isMounted]);
+    setGauges([]);
+    setFloods(mockFloodPolygons);
+  }
+  
+  setLoading(false);
+};
+    
+    loadData();
+  }, [isMounted, district]);
 
-  const center = [29.5, 70.5];
-  const zoom = 7;
-
-  // Don't render map on server side
-  if (!isMounted) {
-    return <div style={{ height: '100vh', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      Loading map...
-    </div>;
+  if (!isMounted || loading) {
+    return <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1a1a2e', color: '#fff' }}>Loading RescueAI map...</div>;
   }
 
   return (
-    <MapContainer
-      center={center}
-      zoom={zoom}
-      style={{ height: '100%', width: '100%', minHeight: '500px' }}
+    <MapContainer 
+      key={mapKey}
+      center={[29.5, 70.5]} 
+      zoom={7} 
+      style={{ height: '100%', width: '100%' }} 
       scrollWheelZoom={true}
     >
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      <TileLayer 
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
+        attribution='OpenStreetMap' 
       />
 
-      {/* Flood polygons */}
-      {floods.map((flood, idx) => (
-        <Polygon
-          key={`flood-${idx}`}
-          positions={flood.geometry.coordinates[0].map(([lng, lat]) => [lat, lng])}
-          pathOptions={{
-            color: '#3b82f6',
-            fillColor: '#3b82f6',
-            fillOpacity: 0.35,
-            weight: 1.5
-          }}
-        >
+      {/* Flood Area */}
+      {activeLayers.floods && floods.length > 0 && floods.map((flood, idx) => (
+        <Polygon key={`flood-${idx}`} positions={flood.geometry?.coordinates?.[0]?.map(([lng, lat]) => [lat, lng]) || []} pathOptions={{ color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.35, weight: 1.5 }}>
           <Popup>
-            <strong>Flood Extent</strong><br />
-            District: {flood.district}
+            <strong>{language === 'ur' ? '💧 سیلاب کا علاقہ' : '💧 Flood Area'}</strong><br />
+            {language === 'ur' ? 'ضلع' : 'District'}: {flood.district || 'Unknown'}
           </Popup>
         </Polygon>
       ))}
 
-      {/* Roads - colored by status */}
-      {roads.map((road) => (
-        <Polyline
-          key={road.osm_id}
-          positions={road.geometry.coordinates.map(([lng, lat]) => [lat, lng])}
-          pathOptions={{
-            color: STATUS_COLORS[road.status] || '#888',
-            weight: road.status === 'red' ? 4 : 3,
-            opacity: 0.9
-          }}
+      {/* Roads */}
+      {activeLayers.roads && roads.length > 0 && roads.map((road, idx) => (
+        <Polyline 
+          key={road.osm_id || `road-${idx}`} 
+          positions={road.geometry?.coordinates?.map(([lng, lat]) => [lat, lng]) || []} 
+          pathOptions={{ color: STATUS_COLORS[road.status] || '#888', weight: road.status === 'red' ? 4 : 3, opacity: 0.9 }}
         >
           <Popup>
-            <strong>{road.name}</strong><br />
-            Status: {road.status === 'green' ? '✅ Open' : road.status === 'amber' ? '⚠️ At Risk' : '🔴 Closed'}<br />
-            {road.hours_to_cutoff && `Hours remaining: ~${road.hours_to_cutoff}h`}
+            <strong>{road.name || 'Unnamed Road'}</strong><br />
+            {road.status === 'green' && (language === 'ur' ? '🟢 کھلی / محفوظ' : '🟢 Open / Safe')}
+            {road.status === 'amber' && (language === 'ur' ? '🟡 خطرہ' : '🟡 At Risk')}
+            {road.status === 'red' && (language === 'ur' ? '🔴 بند / منقطع' : '🔴 Closed')}
+            {road.hours_to_cutoff && <br />}
+            {road.hours_to_cutoff && (language === 'ur' ? `⏱️ ${road.hours_to_cutoff} گھنٹے باقی` : `⏱️ ${road.hours_to_cutoff}h remaining`)}
           </Popup>
         </Polyline>
       ))}
 
-      {/* Relief camps */}
-      {camps.map((camp, idx) => (
-        <CircleMarker
-          key={`camp-${idx}`}
-          center={[camp.lat, camp.lng]}
-          radius={8}
-          pathOptions={{ color: '#2563eb', fillColor: '#3b82f6', fillOpacity: 0.8 }}
-        >
+      {/* Citizen Reports */}
+      {activeLayers.citizenReports && reports.length > 0 && reports.map((report, idx) => {
+        const severityColor = SEVERITY_COLORS[report.severity] || SEVERITY_COLORS.medium;
+        return (
+          <CircleMarker 
+            key={`report-${idx}`} 
+            center={[report.lat, report.lng]} 
+            radius={report.severity === 'high' ? 8 : 6} 
+            pathOptions={{ color: severityColor.bg, fillColor: severityColor.fill, fillOpacity: 0.8, weight: 2 }}
+          >
+            <Popup>
+              <strong>{language === 'ur' ? '📢 شہری اطلاع' : '📢 Citizen Report'}</strong><br />
+              {language === 'ur' ? 'شدت' : 'Severity'}: <strong style={{ color: severityColor.bg }}>
+                {language === 'ur' ? severityColor.labelUr : severityColor.labelEn}
+              </strong><br />
+              {language === 'ur' ? 'وقت' : 'Time'}: {new Date(report.reported_at).toLocaleTimeString()}
+            </Popup>
+          </CircleMarker>
+        );
+      })}
+
+      {/* Rescue Stations */}
+      {activeLayers.rescue && camps.length > 0 && camps.map((camp, idx) => (
+        <Marker key={`camp-${idx}`} position={[camp.lat, camp.lng]}>
           <Popup>
-            <strong>🏕️ {camp.name}</strong><br />
-            District: {camp.district}
+            <strong>{language === 'ur' ? '🏕️ ریسکیو اسٹیشن' : '🏕️ Rescue Station'}</strong><br />
+            {camp.name}
           </Popup>
-        </CircleMarker>
+        </Marker>
       ))}
 
-      {/* Citizen ground reports */}
-      {reports.map((report, idx) => (
-        <CircleMarker
-          key={`report-${idx}`}
-          center={[report.lat, report.lng]}
-          radius={6}
-          pathOptions={{ color: '#ea580c', fillColor: '#f97316', fillOpacity: 0.8 }}
-        >
+      {/* River Gauges */}
+      {activeLayers.gauges && gauges.length > 0 && gauges.map((gauge, idx) => (
+        <CircleMarker key={`gauge-${idx}`} center={[gauge.lat || 30.68, gauge.lng || 70.65]} radius={10} pathOptions={{ color: '#f59e0b', fillColor: '#f59e0b', fillOpacity: 0.8 }}>
           <Popup>
-            <strong>📢 Citizen Report</strong><br />
-            Severity: {report.severity}<br />
-            Reported: {new Date(report.reported_at).toLocaleString()}
+            <strong>{language === 'ur' ? '📊 دریا گیج' : '📊 River Gauge'}</strong><br />
+            {gauge.river || 'Chenab'} {language === 'ur' ? 'دریا' : 'River'}<br />
+            {language === 'ur' ? 'سطح' : 'Level'}: {gauge.level_cm || 850}cm<br />
+            {language === 'ur' ? 'رفتار' : 'Rise rate'}: {gauge.rise_rate_cm_per_hr || 0}cm/hr
           </Popup>
         </CircleMarker>
       ))}

@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import 'leaflet/dist/leaflet.css';
 
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -20,8 +21,149 @@
   }
 }
 
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  /* Hide side panels on mobile by default */
+  .left-panel, .right-panel {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    z-index: 1050;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    width: 280px !important;
+  }
+  
+  .left-panel.open, .right-panel.open {
+    transform: translateX(0);
+  }
+  
+  /* Make map fullscreen on mobile */
+  .map-container {
+    width: 100% !important;
+  }
+  
+  /* Floating action buttons for mobile */
+  .mobile-menu-btn {
+    display: flex;
+    position: absolute;
+    top: 60px;
+    left: 10px;
+    z-index: 1000;
+    background: #1a1a2e;
+    border: 1px solid #3b82f6;
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: white;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  
+  /* Larger touch targets */
+  button, .layer-control-item {
+    min-height: 44px;
+  }
+  
+  /* Stack right panel content */
+  .right-panel-content {
+    gap: 12px;
+  }
+  
+  /* Legend adjustments for mobile */
+  .map-legend {
+    bottom: 10px !important;
+    right: 10px !important;
+    max-width: 200px;
+  }
+}
+
+/* Tablet styles */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .left-panel, .right-panel {
+    width: 220px !important;
+  }
+  
+  .map-container {
+    flex: 2 !important;
+  }
+}
+
+/* Desktop default - hide mobile buttons */
+.mobile-menu-btn {
+  display: none;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+/* Card styles */
+.card {
+  background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%);
+  border-radius: 12px;
+  border: 1px solid #2a2a3e;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  border-color: #3b82f6;
+}
+
+/* Status badges */
+.badge-critical {
+  background: #ef4444;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.badge-high {
+  background: #f97316;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.badge-elevated {
+  background: #eab308;
+  color: #1a1a2e;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+/* Score animation */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.critical-score {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a2e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3b82f6;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2563eb;
 }

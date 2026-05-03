@@ -1,4 +1,7 @@
-require('dotenv').config();
+require('dotenv').config({ path: __dirname + '/.env' });
+
+console.log('MONGO_URI loaded:', process.env.MONGO_URI ? '✅ Yes' : '❌ No');
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -6,7 +9,6 @@ const connectDB = require('./config/db');
 
 connectDB();
 
-// Start all data scrapers and cron jobs
 require('./jobs/cron');
 
 const app = express();
@@ -15,30 +17,27 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-// ─── ROUTES ───────────────────────────────────────────────────
-
-// Person 3 — WhatsApp webhook
+// ROUTES
 app.use('/webhook', require('./routes/webhook'));
-
-// Person 3 — Ground reports
 app.use('/api/reports', require('./routes/reports'));
-
 app.use('/api/register', require('./routes/register'));
-
-// Person 2 routes — will be uncommented when Person 2 pushes
 app.use('/api/risk', require('./routes/risk'));
 app.use('/api/roads', require('./routes/roads'));
+app.use('/api/floods', require('./routes/floods'));
 app.use('/api/replay', require('./routes/replay'));
+app.use('/api/relief-camps', require('./routes/reliefCamps'));
+app.use('/api/river-gauges', require('./routes/riverGauges'));
 
-// ─── HEALTH CHECK ─────────────────────────────────────────────
-app.get('/api/health', (req, res) =>
-  res.json({ status: 'ok', ts: new Date() })
-);
+app.get('/api/health', (req, res) => res.json({ status: 'ok', ts: new Date() }));
 
-// ─── START SERVER ─────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`📡 Webhook ready at /webhook`);
   console.log(`📊 Reports ready at /api/reports`);
+  console.log(`🏕️ Relief camps ready at /api/relief-camps`);
+  console.log(`🌊 River gauges ready at /api/river-gauges`);
+  console.log(`⚠️ Risk ready at /api/risk`);
+  console.log(`🛣️ Roads ready at /api/roads`);
+  console.log(`🌊 Floods ready at /api/floods`);
 });
