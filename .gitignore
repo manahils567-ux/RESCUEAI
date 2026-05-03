@@ -8,3 +8,6 @@ data/
 .env
 *.env
 server/.env
+.env
+testAlert.js
+testSms.js
