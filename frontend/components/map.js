@@ -26,7 +26,7 @@ const SEVERITY_COLORS = {
   low: { bg: '#eab308', fill: '#eab308', labelEn: 'Low', labelUr: 'معمولی' }
 };
 
-export default function MapComponent({ activeLayers = {}, language = 'ur', district = 'Rajanpur', replayData = null }) {
+export default function MapComponent({ activeLayers = {}, language = 'ur', district = '', replayData = null }) {
   const [roads, setRoads] = useState([]);
   const [floods, setFloods] = useState([]);
   const [reports, setReports] = useState([]);
@@ -64,9 +64,9 @@ const loadData = async () => {
   
   try {
     const [roadsData, reportsData, campsData, gaugesData, floodsData] = await Promise.all([
-      fetchRoads(district).catch(() => null),
-      fetchReports(district).catch(() => null),
-      fetchReliefCamps(district).catch(() => null),
+      fetchRoads().catch(() => null),
+      fetchReports().catch(() => null),
+      fetchReliefCamps().catch(() => null),
       fetchRiverGauges().catch(() => null),
       fetchFloodEvents().catch(() => null)
     ]);

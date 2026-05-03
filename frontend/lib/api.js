@@ -73,7 +73,7 @@ export async function fetchRoads(district) {
 }
 
 // Citizen ground reports
-export async function fetchReports(district = 'Rajanpur') {
+export async function fetchReports(district) {
   try {
     const url = district === 'all' 
       ? `${BACKEND_URL}/api/reports` 
