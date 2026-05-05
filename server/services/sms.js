@@ -1,117 +1,147 @@
 require('dotenv').config();
 const axios = require('axios');
 const RegisteredPhone = require('../models/RegisteredPhone');
+const { sendText } = require('./whatsapp');
 
-async function triggerSMSAlerts(redUnionCouncils) {
-  console.log(`🚨 SMS Alert triggered for ${redUnionCouncils.length} union councils`);
+// ─── TRIGGER ALERTS FOR HIGH-RISK AREAS ─────────────────────
+async function triggerWhatsAppAlerts(redUnionCouncils) {
+  console.log(`\n🚨 WHATSAPP ALERT triggered for ${redUnionCouncils.length} union councils`);
+  
   for (const uc of redUnionCouncils) {
     try {
       const phones = await getRegisteredPhones(uc.union_council);
+      
       if (!phones.length) {
-        console.log(`No registered phones for ${uc.union_council}`);
+        console.log(`⚠️  No registered phones for ${uc.union_council}`);
         continue;
       }
+
       const route = await getSafeRoute(uc.union_council);
+      const message = buildAlertMessage(uc, route);
+
       for (const phone of phones) {
-        const message = buildAlertMessage(uc, route);
-        await sendSMS(phone.phone, message);
-        await new Promise(r => setTimeout(r, 100));
+        try {
+          await sendText(phone.phone, message);
+          await new Promise(r => setTimeout(r, 200)); // Rate limiting
+        } catch (err) {
+          console.error(`❌ Failed to send to ${phone.phone}:`, err.message);
+        }
       }
-      console.log(`✅ SMS sent to ${phones.length} people in ${uc.union_council}`);
+
+      console.log(`✅ WhatsApp alerts sent to ${phones.length} people in ${uc.union_council}`);
     } catch (err) {
-      console.error(`❌ SMS failed for ${uc.union_council}:`, err.message);
+      console.error(`❌ Alert failed for ${uc.union_council}:`, err.message);
     }
   }
 }
 
+// ─── BUILD ALERT MESSAGE ───────────────────────────────────
 function buildAlertMessage(uc, route) {
-  const campName = route?.nearest_camp?.name || 'Qareeb ka relief camp';
-  const roadName = route?.safe_road?.name   || 'Ucha aur mehfooz rasta';
+  const campName = route?.nearest_camp?.name || 'قریب کا رِلیف کیمپ';
+  const roadName = route?.safe_road?.name || 'محفوظ سڑک';
+  
   return (
-    `BACHAO ALERT: ${uc.union_council} mein selaab ka shadeed khatra hai. ` +
-    `Abhi ${roadName} se niklen. ` +
-    `Nazdeek camp: ${campName}. ` +
-    `Madad ke liye: 1122`
+    `🚨 *BACHAO FLOOD ALERT* 🚨\n\n` +
+    `${uc.union_council} میں سیلاب کا شدید خطرہ ہے!\n\n` +
+    `📍 *محفوظ سڑک:* ${roadName}\n` +
+    `🏕️ *رِلیف کیمپ:* ${campName}\n` +
+    `⏱️ *خطرہ درجہ:* ${uc.score >= 80 ? '🔴 شدید' : '🟠 اہم'}\n\n` +
+    `فوری نکلیں! مدد: 1122`
   );
 }
 
-async function sendSMS(to, message) {
-  try {
-    // Always log for demo visibility
-    console.log('\n📱 SMS ALERT TRIGGERED:');
-    console.log('─────────────────────────────');
-    console.log(`To: ${to}`);
-    console.log(`Message: ${message}`);
-    console.log('─────────────────────────────\n');
-
-    const accountSid = process.env.TWILIO_ACCOUNT_SID;
-    const authToken  = process.env.TWILIO_AUTH_TOKEN;
-    const from       = process.env.TWILIO_FROM_NUMBER;
-    const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
-    const params = new URLSearchParams();
-    params.append('To', to);
-    params.append('From', from);
-    params.append('Body', message);
-    await axios.post(url, params, {
-      auth: { username: accountSid, password: authToken }
-    });
-    console.log(`✅ SMS delivered to ${to}`);
-  } catch (err) {
-    console.log(`📋 SMS logged successfully (demo mode)`);
-  }
-}
-
+// ─── GET REGISTERED PHONES FOR AREA ──────────────────────────
 async function getRegisteredPhones(union_council) {
   try {
-    return await RegisteredPhone.find({ union_council, active: true });
+    return await RegisteredPhone.find({ 
+      union_council, 
+      active: true,
+      delivery_method: { $in: ['whatsapp', 'both'] }
+    });
   } catch (err) {
-    console.log('DB not connected, using mock phones');
+    console.log('🔄 DB not connected, using mock phones');
     return [{ phone: '+923001234567' }];
   }
 }
 
+// ─── GET SAFE ROUTE & CAMP INFO ──────────────────────────────
 async function getSafeRoute(union_council) {
   try {
     const { getSafeRouteForUC } = require('./safeRoute');
     return await getSafeRouteForUC(union_council, 0, 0);
   } catch (err) {
+    // Fallback for demo/testing
     return {
-      safe_road:    { name: 'N-55 Taunsa Bypass' },
-      nearest_camp: { name: 'Rajanpur Government School Camp' }
+      safe_road: { name: 'N-55 تاونسہ بائی پاس' },
+      nearest_camp: { name: 'راجن پور حکومتی اسکول کیمپ' }
     };
   }
 }
 
-async function registerPhone(phone, union_council, district, language) {
+// ─── REGISTER PHONE IN DATABASE ──────────────────────────────
+async function registerPhone(phone, union_council, district, language = 'ur', delivery_method = 'whatsapp') {
   try {
-    await RegisteredPhone.findOneAndUpdate(
+    const registered = await RegisteredPhone.findOneAndUpdate(
       { phone },
-      { phone, union_council, district, language, active: true },
-      { upsert: true }
+      { 
+        phone, 
+        union_council, 
+        district, 
+        language,
+        delivery_method, // 'whatsapp' only (Twilio SMS not available in Pakistan)
+        active: true,
+        registered_at: new Date()
+      },
+      { upsert: true, new: true }
     );
-    console.log(`✅ Phone registered: ${phone} for ${union_council}`);
+    
+    console.log(`✅ Phone registered: ${phone} for ${union_council} (${delivery_method})`);
     return true;
   } catch (err) {
-    console.error('Registration failed:', err.message);
+    console.error('❌ Registration failed:', err.message);
     return false;
   }
 }
 
-async function testSMS() {
-  console.log('Testing SMS system...\n');
-  const testUC = { union_council: 'Rajanpur City', district: 'Rajanpur', score: 87, tier: 'red' };
-  const testRoute = {
-    safe_road:    { name: 'N-55 Taunsa Bypass' },
-    nearest_camp: { name: 'Rajanpur Government School Camp' }
+// ─── TEST FUNCTION ───────────────────────────────────────────
+async function testAlerts() {
+  console.log('\n' + '='.repeat(60));
+  console.log('Testing WhatsApp Alert System');
+  console.log('='.repeat(60) + '\n');
+  
+  const testUC = { 
+    union_council: 'Rajanpur City', 
+    district: 'Rajanpur', 
+    score: 87, 
+    tier: 'red' 
   };
+  
+  const testRoute = {
+    safe_road: { name: 'N-55 تاونسہ بائی پاس' },
+    nearest_camp: { name: 'راجن پور حکومتی اسکول کیمپ' }
+  };
+  
   const message = buildAlertMessage(testUC, testRoute);
-  console.log('📝 SMS Message that would be sent:');
-  console.log('─'.repeat(50));
+  
+  console.log('📝 Alert Message that would be sent:\n');
+  console.log('─'.repeat(60));
   console.log(message);
-  console.log('─'.repeat(50));
-  console.log('\n✅ SMS system ready');
+  console.log('─'.repeat(60));
+  console.log('\n✅ WhatsApp Alert System Ready\n');
+  console.log('Note: Alerts are sent ONLY via WhatsApp in this implementation');
+  console.log('Twilio SMS support has been removed (not available in Pakistan)\n');
 }
 
-if (require.main === module) { testSMS(); }
+// Run test when file is executed directly
+if (require.main === module) {
+  testAlerts();
+}
 
-module.exports = { triggerSMSAlerts, registerPhone, sendSMS };
+module.exports = { 
+  triggerWhatsAppAlerts,
+  triggerSMSAlerts: triggerWhatsAppAlerts, // For backward compatibility
+  registerPhone, 
+  buildAlertMessage,
+  getSafeRoute,
+  getRegisteredPhones
+};

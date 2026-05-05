@@ -42,16 +42,16 @@ async function handleIncomingMessage(message, contact) {
     if (pending?.step === 'awaiting_district') {
       pendingRegistrations.delete(from);
       const { registerPhone } = require('./sms');
-      await registerPhone(from, text.trim(), text.trim(), 'ur');
+      await registerPhone(from, text.trim(), text.trim(), 'ur', 'whatsapp');
       await sendText(from,
-        `✅ ${text.trim()} ke liye register ho gaye!\n` +
+        `✅ ${text.trim()} کے لیے رجسٹر ہو گئے!\n` +
         `آپ کو سیلاب کے الرٹس ملیں گے۔\n` +
         `You will now receive flood alerts for ${text.trim()}.`
       );
       return;
     }
 
-  const intent = detectIntent(text);
+    const intent = detectIntent(text);
 
     console.log(`🎯 Intent detected: ${intent}`);
 
@@ -64,19 +64,23 @@ async function handleIncomingMessage(message, contact) {
     }
     else if (intent === 'CAMP_LOCATION') {
       await sendText(from, 
-        'قریب ترین کیمپ: راجن پور گورنمنٹ اسکول کیمپ۔ مدد: 1122'
+        '📍 قریب ترین کیمپ: راجن پور حکومتی اسکول کیمپ\n' +
+        '🆘 مدد: 1122'
       );
     }
     else if (intent === 'FLOOD_RISK') {
       await sendText(from,
-        'سیلاب کی تازہ معلومات کے لیے BACHAO+ ڈیش بورڈ دیکھیں۔ مدد: 1122'
+        '⚠️ سیلاب کی تازہ معلومات کے لیے BACHAO ڈیش بورڈ دیکھیں۔\n' +
+        '🆘 مدد: 1122'
       );
     }
     else if (intent === 'REGISTER') {
       pendingRegistrations.set(from, { step: 'awaiting_district' });
       await sendText(from,
-        'رجسٹریشن کے لیے اپنا ضلع لکھیں۔ مثال: Rajanpur\n' +
-        'To register, reply with your district name. Example: Rajanpur'
+        `رجسٹریشن کے لیے اپنا ضلع لکھیں۔\n` +
+        `مثال: Rajanpur\n\n` +
+        `To register, reply with your district name.\n` +
+        `Example: Rajanpur`
       );
     }
     else {
@@ -85,12 +89,12 @@ async function handleIncomingMessage(message, contact) {
   }
 }
 
-// ─── ROAD STATUS ─────────────────────────────────────────────
+// ─── ROAD STATUS QUERY ────────────────────────────────────────
 async function getRoadStatusReply(text) {
   // Road names to check in the message
   const roadNames = [
     'N-55', 'N-70', 'N-85', 'N-5', 'M-4',
-    'Taunsa', 'Rajanpur', 'DG Khan'
+    'Taunsa', 'Rajanpur', 'DG Khan', 'Muzaffargarh'
   ];
 
   const mentioned = roadNames.find(r =>
@@ -116,15 +120,15 @@ async function getRoadStatusReply(text) {
 
   } catch (err) {
     // Database not connected yet — return mock response for testing
-    console.log('DB not connected, using mock response');
+    console.log('🔄 DB not connected, using mock response');
     return `${mentioned} کی معلومات ابھی دستیاب نہیں۔ مدد: 1122`;
   }
 }
 
-// ─── AGENT UPDATE ─────────────────────────────────────────────
+// ─── AGENT UPDATE (Field Worker) ──────────────────────────────
 async function handleAgentUpdate(from, text) {
-  const isClosed = /band|closed|blocked/i.test(text);
-  const isOpen   = /khula|open|clear/i.test(text);
+  const isClosed = /band|closed|blocked|بند/i.test(text);
+  const isOpen   = /khula|open|clear|کھلا/i.test(text);
 
   const roadNames = ['N-55', 'N-70', 'N-85', 'Taunsa', 'Rajanpur'];
   const road = roadNames.find(r => text.includes(r));
@@ -137,10 +141,10 @@ async function handleAgentUpdate(from, text) {
         { $set: { status: isClosed ? 'red' : 'green' } }
       );
     } catch (err) {
-      console.log('DB not connected, skipping update');
+      console.log('🔄 DB not connected, skipping update');
     }
     await sendText(from,
-      `اپڈیٹ ہو گیا: ${road} کو ${isClosed ? 'بند' : 'کھلا'} نشان زد کر دیا گیا۔`
+      `✅ اپڈیٹ ہو گیا: ${road} کو ${isClosed ? '🔴 بند' : '🟢 کھلا'} نشان زد کر دیا گیا۔`
     );
   } else {
     await sendText(from, ur.HELP_MESSAGE);
@@ -161,7 +165,7 @@ async function saveGroundReport(phone, lat, lng, photoUrl, text) {
     });
     console.log(`📍 Ground report saved from ${phone}`);
   } catch (err) {
-    console.log('DB not connected, skipping ground report save');
+    console.log('🔄 DB not connected, skipping ground report save');
   }
 }
 
@@ -193,7 +197,7 @@ async function getMediaUrl(mediaId) {
     );
     return data.url;
   } catch (err) {
-    console.error('Failed to get media URL:', err.message);
+    console.error('❌ Failed to get media URL:', err.message);
     return null;
   }
 }
