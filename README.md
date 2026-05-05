@@ -1,136 +1,415 @@
-# RESCUEAI
-RESCUEAI is an AI-powered flood intelligence system for Pakistan that combines satellite imagery, machine learning and real-time data to predict flood risk and evacuation routes. It delivers actionable alerts via WhatsApp SMS, showing which areas and roads are safe or about to be cut off helping save lives through early, localized disaster response
+# 🚨 BACHAO — Flood Intelligence System
 
-# 🚨 RESCUEAI — AI Flood & Disaster Intelligence System
+> Real-time flood prediction and evacuation guidance for Pakistan via WhatsApp
 
-> AI-powered flood prediction + evacuation intelligence system for real-time disaster response in Pakistan.
+**BACHAO** is an AI-powered flood intelligence platform that combines satellite imagery, real-time river gauge data, and citizen reports to predict flood risk and provide actionable evacuation routes via WhatsApp.
 
----
+## 🎯 Mission
 
-## 🌍 Overview
-
-RESCUEAI is a smart disaster response system that predicts flood risks and guides evacuation in real time using satellite data, AI models, and live government feeds.
-
-It doesn’t just show warnings — it tells people:
-- Where flood will hit
-- Which roads are safe
-- How much time is left to escape
+Save lives by delivering early, localized flood warnings and safe evacuation routes to vulnerable communities in Punjab, Pakistan.
 
 ---
 
-## 💡 Problem
+## 🏗️ System Architecture
 
-Pakistan faces severe floods every year:
-
-- Millions displaced
-- Delayed evacuation alerts
-- No last-mile communication system
-- No real-time road safety guidance
-
-Existing systems stop at “warning level” — not action.
-
----
-
-## 🧠 Solution
-
-RESCUEAI bridges the gap between prediction and action:
-
-- 🛰️ Satellite-based flood detection
-- 🤖 AI risk prediction model
-- 🛣️ Road cut-off time estimation (hours-to-inundation)
-- 📲 WhatsApp + SMS emergency alerts
-- 🗺️ Live interactive flood dashboard
-
----
-
-## ⚙️ Key Features
-
-### 🛰️ Flood Prediction AI
-- Uses satellite imagery + ML models
-- District-level risk scoring (0–100)
-
-### 🛣️ Smart Evacuation System
-- Calculates road safety time
-- Considers elevation + river rise rate
-- Shows safe / at-risk / blocked routes
-
-### 📡 Real-Time Alerts
-- WhatsApp bot (Urdu + English)
-- SMS alerts for feature phones
-- Auto emergency notifications
-
-### 🗺️ Live Dashboard
-- Interactive flood map
-- Risk heatmap by district
-- Road status visualization
-- Relief camp locations
-
-### ⏳ Historical Replay Mode
-- Simulates past flood events (2022 Pakistan floods)
-- Used for demo and analysis
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    SATELLITE DATA                            │
+│         (NASA FIRMS, Sentinel-1 SAR, Google Earth)          │
+└──────────────────┬──────────────────────────────────────────┘
+                   │
+┌──────────────────▼──────────────────────────────────────────┐
+│                   DATA SCRAPERS                              │
+│    • NASA FIRMS flood detection (every 3 hours)             │
+│    • PMD river gauges (every 30 mins)                       │
+│    • NDMA official alerts (every 30 mins)                   │
+│    • Ground reports via WhatsApp                            │
+└──────────────────┬──────────────────────────────────────────┘
+                   │
+┌──────────────────▼──────────────────────────────────────────┐
+│                   AI ALGORITHMS                              │
+│    • District risk scoring (4-signal weighted formula)       │
+│    • Road cut-off prediction (hours-to-inundation)          │
+│    • Safe route pathfinding + camp locator                  │
+└──────────────────┬──────────────────────────────────────────┘
+                   │
+┌──────────────────▼──────────────────────────────────────────┐
+│              WHATSAPP DELIVERY BOT                           │
+│    • Real-time alerts (when risk >= 80)                     │
+│    • Road status queries ("Is N-55 open?")                  │
+│    • Relief camp finder ("Where is nearest camp?")          │
+│    • User registration & agent updates                      │
+└──────────────────┬──────────────────────────────────────────┘
+                   │
+        ┌──────────▼──────────┐
+        │  9 Million Citizens  │
+        │   (via WhatsApp)     │
+        └─────────────────────┘
+```
 
 ---
 
-## 🏗️ Tech Stack
+## 👥 Team Roles & Status
 
-- **Frontend:** Next.js, Tailwind, Leaflet.js  
-- **Backend:** Node.js, Express, MongoDB  
-- **ML Service:** Python, FastAPI, PyTorch  
-- **AI:** Google Gemini API  
-- **Geospatial:** Google Earth Engine, GeoPandas  
-- **Messaging:** WhatsApp Cloud API, SMS Gateway  
-- **Data:** NASA, ESA Sentinel-1, PMD, NDMA, OpenStreetMap  
-
----
-
-## 🧩 System Flow
-
-1. Satellite detects flood signals  
-2. ML model calculates district risk  
-3. Road algorithm estimates safe travel time  
-4. Backend processes and stores results  
-5. Alerts sent via WhatsApp/SMS  
-6. Dashboard updates in real time  
+| Role | Owner | Status | Deliverables |
+|------|-------|--------|--------------|
+| **Person 1** | Data Infrastructure | ✅ Complete | Scrapers, Data Loading, OSM Import |
+| **Person 2** | AI & Algorithms | ✅ Complete | Risk Scoring, Road Cut-off, Safe Routes |
+| **Person 3** | Delivery Bots | ✅ Complete | WhatsApp Bot, Intent Detection, Alerts |
+| **Person 4** | Frontend Demo | ✅ Complete | Dashboard, Map, Timeline Replay |
 
 ---
 
-## 🚀 Impact
+## 🚀 Quick Start
 
-- Works on smartphones + basic feature phones  
-- No app installation required  
-- Supports real-time evacuation decisions  
-- Designed for NDMA-level disaster response  
-- Scalable across South Asia flood zones  
+### 1. Clone & Install
+
+```bash
+git clone https://github.com/yourusername/BACHAO.git
+cd BACHAO
+npm install
+```
+
+### 2. Environment Setup
+
+```bash
+cp .env.example .env
+# Edit .env with your:
+# - MONGO_URI (MongoDB connection)
+# - WHATSAPP_PHONE_NUMBER_ID (from Meta Business)
+# - WHATSAPP_TOKEN (from Meta Business)
+# - WHATSAPP_VERIFY_TOKEN (any random string)
+```
+
+### 3. Start Server
+
+```bash
+npm run dev
+# Server runs on http://localhost:5000
+```
+
+### 4. Test Webhook
+
+```bash
+# Should return 403 (not a valid Meta request)
+curl http://localhost:5000/webhook
+```
 
 ---
 
-## 👥 Team
+## 📱 WhatsApp Bot Features
 
-- AI/ML Engineer — Flood prediction model  
-- Backend Engineer — APIs + routing system  
-- Frontend Engineer — Dashboard + UI  
-- Systems Engineer — Messaging + deployment  
+### User Registration
+
+User texts "register" → Bot asks for district → User gets alerts
+
+```
+User: "register"
+Bot: "رجسٹریشن کے لیے اپنا ضلع لکھیں۔ مثال: Rajanpur"
+User: "Rajanpur"
+Bot: "✅ Rajanpur کے لیے رجسٹر ہو گئے!"
+```
+
+### Road Status Query
+
+```
+User: "N-55 khula hai?"
+Bot: "N-55 ابھی کھلی ہے۔ محفوظ سفر کریں۔"
+```
+
+### Location Sharing
+
+User sends location → Saved as ground report → Increases risk score
+
+### Flood Alert (Automatic)
+
+When risk hits red (score >= 80):
+
+```
+🚨 BACHAO FLOOD ALERT 🚨
+
+Rajanpur میں سیلاب کا شدید خطرہ ہے!
+
+📍 محفوظ سڑک: N-55 تاونسہ بائی پاس
+🏕️ رِلیف کیمپ: راجن پور حکومتی اسکول کیمپ
+
+فوری نکلیں! مدد: 1122
+```
 
 ---
 
-## 🎥 Demo
+## 🗄️ Database Schema
 
-- Live Dashboard: [Add link]  
-- Demo Video: [Add link]  
-- GitHub Repo: [You are here]
+### RegisteredPhone
+```javascript
+{
+  phone: "+923001234567",
+  union_council: "Rajanpur City",
+  district: "Rajanpur",
+  language: "ur",
+  delivery_method: "whatsapp",
+  active: true,
+  registered_at: Date
+}
+```
+
+### RiskScore
+```javascript
+{
+  union_council: "Rajanpur City",
+  district: "Rajanpur",
+  score: 87,  // 0-100
+  tier: "red", // "red" (80+), "amber" (60-80), "green" (<60)
+  satellite_score: 100,
+  gauge_score: 80,
+  report_score: 60,
+  calculated_at: Date
+}
+```
+
+### RoadSegment
+```javascript
+{
+  name: "N-55 Taunsa Road",
+  osm_id: 123456,
+  status: "amber", // green, amber, red
+  hours_to_cutoff: 4.5,
+  elevation_m: 125.5,
+  distance_to_river_km: 8,
+  district: "DG Khan",
+  geometry: { type: "LineString", coordinates: [...] }
+}
+```
 
 ---
 
-## 🧠 Why RESCUEAI?
+## 🔧 API Endpoints
 
-- Real-world critical problem (flood disasters)
-- Uses Google AI + Earth Engine
-- Combines AI + geospatial + communication systems
-- Fully working end-to-end system
-- High social impact + deployable solution
+### User Management
+
+```
+POST   /api/register                    - Register for alerts
+GET    /api/register/status/:phone      - Check registration
+DELETE /api/register/:phone             - Unregister
+```
+
+### Data Queries
+
+```
+GET    /api/risk?district=Rajanpur           - Get risk scores
+GET    /api/roads?status=red                 - Get road status
+GET    /api/floods                           - Get satellite floods
+GET    /api/river-gauges                     - Get gauge readings
+GET    /api/relief-camps                     - Get camp locations
+GET    /api/reports                          - Get ground reports
+```
+
+### Webhook (Meta WhatsApp)
+
+```
+GET    /webhook          - Verify webhook (Meta calls this once)
+POST   /webhook          - Receive messages (Meta calls continuously)
+```
 
 ---
 
-## 📜 License
+## 📊 Cron Jobs (Automatic)
 
-Hackathon project — built for innovation challenge use only.
+| Job | Schedule | What it Does |
+|-----|----------|-------------|
+| NASA FIRMS | Every 3 hours | Fetch satellite flood data |
+| PMD Gauges | Every 30 mins | Scrape river gauge readings |
+| NDMA Alerts | Every 30 mins | Scrape government alerts |
+| Risk Scoring | Every 30 mins | Calculate 0-100 risk per district |
+| Road Status | Every 30 mins | Predict hours-to-inundation |
+
+---
+
+## 🔑 Risk Scoring Formula
+
+```
+Risk Score = 
+  (Satellite Floods)    × 0.40 +
+  (Gauge Rise Rate)     × 0.45 +
+  (Ground Reports)      × 0.15
+```
+
+**Thresholds:**
+- 🔴 **Red**: Score >= 80 (trigger alerts)
+- 🟠 **Amber**: Score 60-79 (warning)
+- 🟢 **Green**: Score < 60 (safe)
+
+---
+
+## 🛣️ Road Cut-off Algorithm
+
+```
+Hours to Inundation = 
+  (Road Elevation - Current Water Level) 
+  ÷ 
+  (Rise Rate × Proximity Factor)
+
+Proximity Factor:
+  - 1.0 if < 2km from river
+  - 0.6 if 2-10km from river
+  - 0.2 if > 10km from river
+```
+
+---
+
+## 📍 Safe Route Finder
+
+Algorithm:
+1. Find all green (safe) roads
+2. Sort by elevation (highest first)
+3. Find nearest green road to user location
+4. Find nearest active relief camp
+5. Return both in alert message
+
+---
+
+## 🌍 Supported Districts
+
+| Province | Districts |
+|----------|-----------|
+| Punjab | Rajanpur, DG Khan, Muzaffargarh, Layyah, Multan, Bahawalpur, Rahim Yar Khan, Mianwali, Bhakkar |
+
+(Expandable to other provinces)
+
+---
+
+## 🗣️ Multi-Language Support
+
+- 🇵🇰 **Urdu** (اردو) - Primary
+- 🇵🇰 **Punjabi** (پنجابی) - Regional
+- 🇵🇰 **Sindhi** (سندھی) - Regional
+
+---
+
+## 📋 Important Implementation Notes
+
+### ✅ What's Included
+
+- ✅ WhatsApp integration (no SMS)
+- ✅ Intent-based bot
+- ✅ Risk scoring
+- ✅ Road cut-off prediction
+- ✅ Relief camp finder
+- ✅ Ground report collection
+- ✅ Cron job scheduling
+- ✅ Multi-language Urdu/Punjabi/Sindhi
+
+### ❌ Explicitly Excluded
+
+- ❌ Twilio SMS (not available in Pakistan)
+- ❌ Jazz mobile operator integration (requires driving licence)
+- ❌ Facebook Messenger
+- ❌ Telegram
+- ❌ Email alerts
+
+---
+
+## 🧪 Testing
+
+### Test Intent Detector
+```bash
+node server/services/intentDetector.js
+```
+
+### Test Alert System
+```bash
+node server/services/sms.js
+```
+
+### Test Registration
+```bash
+curl -X POST http://localhost:5000/api/register \
+  -H "Content-Type: application/json" \
+  -d '{"phone":"+923001234567","union_council":"Rajanpur City","district":"Rajanpur"}'
+```
+
+---
+
+## 📚 Documentation
+
+- `PERSON3_IMPLEMENTATION.md` - Detailed bot implementation guide
+- `CONTRACTS.md` - API contract definitions
+- `.env.example` - Environment variables template
+
+---
+
+## 🔐 Security Checklist
+
+- [ ] Verify `.env` is in `.gitignore`
+- [ ] Use strong WHATSAPP_VERIFY_TOKEN
+- [ ] Validate phone numbers (E.164 format)
+- [ ] Rate limit WhatsApp messages (200ms between sends)
+- [ ] Log webhook signatures (production)
+- [ ] Use HTTPS for webhook URL
+- [ ] Rotate WHATSAPP_TOKEN monthly
+- [ ] Monitor database for unusual access
+
+---
+
+## 📞 Emergency Contact
+
+In a real flood event, users receive message:
+```
+🆘 مدد کے لیے: 1122
+```
+
+This is the official Pakistan Disaster Management emergency hotline.
+
+---
+
+## 📈 Monitoring & Logs
+
+```bash
+# Watch server logs
+npm run dev
+
+# Expected output:
+✅ Server running on port 5000
+📡 Webhook ready at /webhook
+⏰ All cron jobs scheduled and running
+📅 Schedule Summary:
+   • NASA FIRMS: Every 3 hours
+   • PMD Gauges: Every 30 minutes
+   • NDMA Alerts: Every 30 minutes
+   • Risk Scores: Every 30 minutes
+   • Road Status: Every 30 minutes
+```
+
+---
+
+## 🚨 Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| WhatsApp messages not sending | Check WHATSAPP_TOKEN validity |
+| Alerts not triggering | Verify risk score >= 80 |
+| Webhook not receiving messages | Ensure WHATSAPP_VERIFY_TOKEN matches |
+| Database errors | Check MONGO_URI connection |
+| Intent not detected | Test with exact keywords |
+
+---
+
+## 📄 License
+
+ISC
+
+---
+
+## 🙏 Acknowledgments
+
+- **NASA FIRMS** - Satellite flood detection
+- **Pakistan Meteorological Department** - River gauge data
+- **NDMA** - Official flood alerts
+- **Meta/Facebook** - WhatsApp Business API
+- **OpenStreetMap** - Road network data
+
+---
+
+**Built with ❤️ for Pakistan's flood survivors**
+
+*Last Updated: May 2026*
