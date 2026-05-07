@@ -54,10 +54,8 @@ cron.schedule('*/30 * * * *', async () => {
 console.log('🚀 Running all jobs on startup...\n');
 
 (async () => {
-  try {
-    await fetchFIRMSData();
-    console.log('✅ NASA FIRMS completed\n');
-  } catch (e) { console.log('⚠️  FIRMS not available:', e.message, '\n'); }
+  // Skip FIRMS on startup - too much data, runs on schedule instead
+  console.log('⏭️  Skipping FIRMS on startup (runs every 3hrs on schedule)\n');
 
   try {
     await scrapePMDGauges();

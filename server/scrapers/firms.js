@@ -45,9 +45,11 @@ async function fetchFIRMSData() {
       });
     }
 
-    if (events.length > 0) {
-      await FloodEvent.insertMany(events, { ordered: false });
-      console.log(`FIRMS: inserted ${events.length} flood events`);
+    // Only insert first 100 to avoid memory issues
+    const limitedEvents = events.slice(0, 100);
+    if (limitedEvents.length > 0) {
+      await FloodEvent.insertMany(limitedEvents, { ordered: false });
+      console.log(`FIRMS: inserted ${limitedEvents.length} flood events`);
     } else {
       console.log('FIRMS: 0 events parsed');
     }
