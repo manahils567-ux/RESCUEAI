@@ -101,7 +101,7 @@ function computeGaugeScore(uc, gauges) {
 
   if (!byRiver.length) return 0;
 
-  const maxRate = Math.max(...byRiver.map(g => g.rise_rate_cm_per_hr || 0));
+  const maxRate = Math.max(...byRiver.map(g => g.rise_rate_cs_per_hr || 0));
   // 10 cm/hr rise = score of 100; 2 cm/hr (Indus fallback) = score of 20
   return Math.min(100, Math.round(maxRate * 10));
 }

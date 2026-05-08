@@ -18,6 +18,7 @@
     "morgan": "^1.10.1",
     "node-cron": "^3.0.3",
     "osm-pbf-parser": "^2.3.0",
+    "pdf-parse": "^1.1.1",
     "qs": "^6.15.1"
   },
   "devDependencies": {

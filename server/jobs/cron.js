@@ -1,6 +1,6 @@
 const cron = require('node-cron');
 const { fetchFIRMSData }   = require('../scrapers/firms');
-const { scrapePMDGauges }  = require('../scrapers/pmd');
+const { scrapeIRSAGauges }  = require('../scrapers/irsa');
 const { scrapeNDMAAlerts } = require('../scrapers/ndma');
 const { calculateAllRiskScores } = require('../services/riskScoring');
 const { updateAllRoadStatuses } = require('../services/roadCutoff');
@@ -14,8 +14,8 @@ cron.schedule('0 */3 * * *', () => {
 });
 
 cron.schedule('*/30 * * * *', () => {
-  console.log('📊 [CRON] Scraping PMD river gauges...');
-  scrapePMDGauges();
+  console.log('📊 [CRON] Scraping IRSA river gauges...');
+  scrapeIRSAGauges();
 });
 
 cron.schedule('*/30 * * * *', () => {
@@ -44,7 +44,7 @@ cron.schedule('*/30 * * * *', async () => {
 console.log('✅ All cron jobs scheduled and running\n');
 console.log('📅 Schedule Summary:');
 console.log('   • NASA FIRMS: Every 3 hours');
-console.log('   • PMD Gauges: Every 30 minutes');
+console.log('   • IRSA Gauges: Every 30 minutes');
 console.log('   • NDMA Alerts: Every 30 minutes');
 console.log('   • Risk Scores: Every 30 minutes');
 console.log('   • Road Status: Every 30 minutes\n');
@@ -56,9 +56,9 @@ console.log('   • Road Status: Every 30 minutes\n');
   console.log('⏭️  Skipping FIRMS on startup (runs on 3hr schedule)\n');
 
   try {
-    await scrapePMDGauges();
-    console.log('✅ PMD Gauges completed\n');
-  } catch (e) { console.log('⚠️  PMD not available:', e.message, '\n'); }
+    await scrapeIRSAGauges();
+    console.log('✅ IRSA Gauges completed\n');
+  } catch (e) { console.log('⚠️  IRSA not available:', e.message, '\n'); }
 
   try {
     await scrapeNDMAAlerts();
