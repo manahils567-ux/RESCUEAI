@@ -18,7 +18,7 @@ export default function Replay2022Page() {
   const [idx, setIdx] = useState(0);
   const [riskScores, setRiskScores] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [language, setLanguage] = useState('ur');
+  const [language, setLanguage] = useState('en');
 
   useEffect(() => {
     loadReplayData(DATES_2022[0].ts);

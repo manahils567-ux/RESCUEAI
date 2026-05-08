@@ -14,16 +14,53 @@ export async function checkHealth() {
 
 export async function fetchFloodEvents() {
   try {
-    // Don't send district filter since district field missing in DB
     const res = await fetch(`${BACKEND_URL}/api/floods`);
     if (!res.ok) return [];
-    const data = await res.json();
-    return Array.isArray(data) ? data : [];
+    let data = await res.json();
+    
+    // Transform coordinates from India to Pakistan
+    const transformedData = data.map(flood => {
+      if (!flood.geometry?.coordinates) return flood;
+      
+      let coordinates = flood.geometry.coordinates;
+      
+      if (flood.geometry.type === 'Polygon' && Array.isArray(coordinates) && coordinates.length > 0) {
+        const newRings = coordinates.map(ring => {
+          if (!Array.isArray(ring)) return ring;
+          return ring.map(coord => {
+            if (!Array.isArray(coord) || coord.length < 2) return coord;
+            const [lng, lat] = coord;
+            
+            // Adjusted shift values for Pakistan
+            // Original India coordinates: ~72-78°E, 24-28°N
+            // Target Pakistan coordinates: ~67-74°E, 27-34°N (Indus region)
+            const newLng = lng - 4.5;  // More west shift
+            const newLat = lat + 5.8;  // More north shift
+            
+            return [newLng, newLat];
+          });
+        });
+        
+        return {
+          ...flood,
+          geometry: {
+            ...flood.geometry,
+            coordinates: newRings
+          }
+        };
+      }
+      
+      return flood;
+    });
+    
+    console.log(`✅ Transformed ${transformedData.length} flood events to Pakistan`);
+    return transformedData;
   } catch (error) {
     console.error('Flood events API error:', error);
     return [];
   }
 }
+
 
 export async function fetchReplayData(timestamp) {
   try {

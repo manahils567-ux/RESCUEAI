@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { fetchRiskScores, fetchReports } from '../lib/api';
 
-export default function NotificationBar({ language = 'ur' }) {
+export default function NotificationBar({ language = 'en' }) {
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
 

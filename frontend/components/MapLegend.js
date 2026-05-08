@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-export default function MapLegend({ language = 'ur' }) {
+export default function MapLegend({ language = 'en' }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const legendItems = [

@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { fetchFloodData } from '../lib/api';
 
-export default function AIChatbot({ language = 'ur' }) {
+export default function AIChatbot({ language = 'en' }) {
   const [message, setMessage] = useState('');
   const [chat, setChat] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -56,18 +56,19 @@ export default function AIChatbot({ language = 'ur' }) {
       const floodData = await fetchFloodData();
       const context = floodData && floodData.length > 0 ? JSON.stringify(floodData.slice(0, 7)) : 'No real-time data available';
       
-      const prompt = `You are RescueAI, a flood emergency assistant for Pakistan. 
-      
-Current flood risk data: ${context}
+      const prompt = `You are RescueAI, a flood emergency assistant for Pakistan.
+
+REAL-TIME FLOOD DATA FROM DATABASE:
+${context}
 
 User question: ${userMessage}
 
-IMPORTANT: 
-- Answer in ${language === 'ur' ? 'URDU language only' : 'ENGLISH language only'}
-- Be concise and actionable
-- If user asks about road status, suggest checking official sources
-- If user asks about camps, provide nearest camp information based on district
-- Be helpful but don't make up false information`;
+INSTRUCTIONS:
+1. First use the REAL DATA above to answer
+2. If real data shows high risk (score > 60), mention it clearly
+3. If real data is not available, use your Gemini knowledge
+4. Answer in ${language === 'ur' ? 'URDU' : 'ENGLISH'}
+5. Be specific and actionable - tell them what to do`;
 
       const result = await gemini.generateContent(prompt);
       const response = await result.response.text();

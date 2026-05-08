@@ -33,7 +33,7 @@ export default function Home() {
   const [isLeftPanelOpen, setIsLeftPanelOpen] = useState(false);
   const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [language, setLanguage] = useState('ur');
+  const [language, setLanguage] = useState('en');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
