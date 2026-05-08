@@ -176,8 +176,10 @@ async function scrapeIRSAGauges() {
     const filename = usedUrl.split('/').pop();
     console.log(`✅ IRSA (${filename}): ${readings.length} gauge readings saved`);
     readings.forEach(r => {
-      const pct = Math.round((r.level_cm / r.danger_cm) * 100);
-      console.log(`   ${r.station.padEnd(12)} (${r.river}): ${r.level_cm.toLocaleString()} Cs — ${pct}% of danger`);
+      const pct = r.danger_cs > 0
+        ? Math.round((r.level_cs / r.danger_cs) * 100)
+        : 0;
+      console.log(`   ${r.station.padEnd(12)} (${r.river}): ${(r.level_cs || 0).toLocaleString()} Cs — ${pct}% of danger`);
     });
   } catch (e) {
     if (!e.message.includes('duplicate')) {
