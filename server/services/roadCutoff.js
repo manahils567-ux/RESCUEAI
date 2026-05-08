@@ -21,78 +21,78 @@ async function updateAllRoadStatuses() {
   const districtGauge = {};
   for (const gauge of gauges) {
     const districts = RIVER_DISTRICTS[gauge.river] || [];
-    for (const d of districts) {
-      districtGauge[d] = gauge;
-    }
+    for (const d of districts) districtGauge[d] = gauge;
   }
 
-  const roads = await RoadSegment.find({});
-  console.log("Roads to process:", roads.length);
+  const BATCH = 500;
+  let skip = 0;
+  let totalProcessed = 0;
 
-  const bulkOps = [];
+  while (true) {
+    const roads = await RoadSegment.find({})
+      .select('_id district elevation_m distance_to_river_km')
+      .skip(skip)
+      .limit(BATCH)
+      .lean();
 
-  for (const road of roads) {
-    const gauge = districtGauge[road.district];
+    if (roads.length === 0) break;
 
-    if (!gauge) {
-      bulkOps.push({
-        updateOne: {
+    const bulkOps = [];
+
+    for (const road of roads) {
+      const gauge = districtGauge[road.district];
+
+      if (!gauge) {
+        bulkOps.push({ updateOne: {
           filter: { _id: road._id },
           update: { $set: { status: "green", hours_to_cutoff: null, last_calculated: new Date() } }
-        }
-      });
-      continue;
-    }
-
-    const currentWaterM  = gauge.level_cm / 100;
-    const riseRateMperHr = (gauge.rise_rate_cm_per_hr || 0) / 100;
-    const headroom       = road.elevation_m - currentWaterM;
-
-    if (riseRateMperHr <= 0) {
-      bulkOps.push({
-        updateOne: {
-          filter: { _id: road._id },
-          update: { $set: { status: "green", hours_to_cutoff: null, last_calculated: new Date() } }
-        }
-      });
-      continue;
-    }
-
-    const distKm    = road.distance_to_river_km || 5;
-    const proximity = distKm < 2 ? 1.0 : distKm < 10 ? 0.6 : 0.2;
-    const hoursLeft = headroom / (riseRateMperHr * proximity);
-
-    let status;
-    if (headroom <= 0)        status = "red";
-    else if (hoursLeft <= 2)  status = "red";
-    else if (hoursLeft <= 12) status = "amber";
-    else                      status = "green";
-
-    bulkOps.push({
-      updateOne: {
-        filter: { _id: road._id },
-        update: {
-          $set: {
-            status,
-            hours_to_cutoff: headroom > 0 ? Math.round(hoursLeft * 10) / 10 : 0,
-            last_calculated: new Date()
-          }
-        }
+        }});
+        continue;
       }
-    });
+
+      const currentWaterM  = gauge.level_cm / 100;
+      const riseRateMperHr = (gauge.rise_rate_cm_per_hr || 0) / 100;
+      const headroom       = road.elevation_m - currentWaterM;
+
+      if (riseRateMperHr <= 0) {
+        bulkOps.push({ updateOne: {
+          filter: { _id: road._id },
+          update: { $set: { status: "green", hours_to_cutoff: null, last_calculated: new Date() } }
+        }});
+        continue;
+      }
+
+      const distKm    = road.distance_to_river_km || 5;
+      const proximity = distKm < 2 ? 1.0 : distKm < 10 ? 0.6 : 0.2;
+      const hoursLeft = headroom / (riseRateMperHr * proximity);
+
+      let status;
+      if (headroom <= 0)        status = "red";
+      else if (hoursLeft <= 2)  status = "red";
+      else if (hoursLeft <= 12) status = "amber";
+      else                      status = "green";
+
+      bulkOps.push({ updateOne: {
+        filter: { _id: road._id },
+        update: { $set: {
+          status,
+          hours_to_cutoff: headroom > 0 ? Math.round(hoursLeft * 10) / 10 : 0,
+          last_calculated: new Date()
+        }}
+      }});
+    }
+
+    if (bulkOps.length > 0) {
+      await RoadSegment.bulkWrite(bulkOps);
+    }
+
+    totalProcessed += roads.length;
+    skip += BATCH;
+
+    await new Promise(r => setTimeout(r, 50));
   }
 
-  if (bulkOps.length > 0) {
-    const result = await RoadSegment.bulkWrite(bulkOps);
-    console.log("Roads updated:", result.modifiedCount);
-  }
-
-  const [red, amber, green] = await Promise.all([
-    RoadSegment.countDocuments({ status: "red" }),
-    RoadSegment.countDocuments({ status: "amber" }),
-    RoadSegment.countDocuments({ status: "green" }),
-  ]);
-  console.log("Status summary - red:", red, "amber:", amber, "green:", green);
+  console.log("Roads updated:", totalProcessed);
 }
 
 module.exports = { updateAllRoadStatuses };
