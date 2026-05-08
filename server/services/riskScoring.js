@@ -57,9 +57,31 @@ function computeSatScore(uc, floods) {
 }
 
 function computeGaugeScore(uc, gauges) {
-  const nearby = gauges.filter(g =>
+  // Match by river name when lat/lng not available (fallback gauge data)
+  const DISTRICT_RIVERS = {
+    "Rajanpur":      "Indus",
+    "DG Khan":       "Indus",
+    "Layyah":        "Indus",
+    "Mianwali":      "Indus",
+    "Rahim Yar Khan":"Indus",
+    "Muzaffargarh":  "Chenab",
+    "Multan":        "Chenab",
+    "Bahawalpur":    "Sutlej",
+    "Bhakkar":       "Indus",
+  };
+
+  const river = DISTRICT_RIVERS[uc.district];
+  
+  // Try lat/lng match first (real PMD data)
+  const byLocation = gauges.filter(g =>
     g.lat && g.lng &&
     Math.abs(g.lat - uc.lat) < 0.5 && Math.abs(g.lng - uc.lng) < 0.5);
+  
+  // Fall back to river name match (fallback gauge data)
+  const byRiver = gauges.filter(g => g.river === river);
+  
+  const nearby = byLocation.length > 0 ? byLocation : byRiver;
+  
   if (!nearby.length) return 0;
   const maxRate = Math.max(...nearby.map(g => g.rise_rate_cm_per_hr || 0));
   return Math.min(100, Math.round(maxRate * 10));
