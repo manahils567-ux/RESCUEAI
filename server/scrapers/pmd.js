@@ -2,7 +2,8 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const RiverGauge = require('../models/RiverGauge');
 
-const FFD_URL = 'https://ffd.pmd.gov.pk/dashboard';
+// Try the public NDMA flood portal instead of FFD (which returns 403)
+const PMD_URL = 'https://www.pmd.gov.pk/en/river-conditions/';
 
 function detectRiver(station) {
   const s = station.toLowerCase();
@@ -17,33 +18,24 @@ function detectRiver(station) {
 
 async function scrapePMDGauges() {
   try {
-    // Retry logic for transient errors
     let data;
-    const maxAttempts = 3;
+    const maxAttempts = 2;
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        const resp = await axios.get(FFD_URL, {
-          timeout: 20000,
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-          }
+        const resp = await axios.get(PMD_URL, {
+          timeout: 15000,
+          headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
         });
         data = resp.data;
         break;
       } catch (e) {
-        // If unauthorized, stop retrying and surface a clear message
-        if (e.response && e.response.status === 401) {
-          console.error('PMD scrape error: 401 Unauthorized — check PMD access or IP restrictions');
-          throw e;
-        }
         if (attempt < maxAttempts) {
           const waitMs = 1000 * attempt;
           console.warn(`PMD fetch attempt ${attempt} failed (${e.message}), retrying in ${waitMs}ms`);
           await new Promise((r) => setTimeout(r, waitMs));
-          continue;
+        } else {
+          throw e;
         }
-        // rethrow after final attempt
-        throw e;
       }
     }
 
@@ -66,7 +58,6 @@ async function scrapePMDGauges() {
       }
     });
 
-    // Compute rise rates
     for (const r of readings) {
       try {
         const threeHoursAgo = new Date(Date.now() - 3 * 60 * 60 * 1000);
@@ -82,30 +73,65 @@ async function scrapePMDGauges() {
 
     if (readings.length > 0) {
       await RiverGauge.insertMany(readings, { ordered: false });
-      console.log(`PMD: ${readings.length} gauge readings saved from FFD`);
+      console.log(`PMD: ${readings.length} gauge readings saved`);
     } else {
-      console.log('PMD: no readings found on FFD dashboard — using fallback');
+      console.log('PMD: no readings found — using fallback');
       await insertFallbackGaugeData();
     }
   } catch (err) {
-    // If 401 we already logged above; avoid inserting fallback data for auth issues
-    if (err.response && err.response.status === 401) return;
     console.error('PMD scrape error:', err.message);
     await insertFallbackGaugeData();
   }
 }
 
+// FIXED: Added lat/lng so computeGaugeScore can match by location.
+// These are approximate coordinates for each barrage/headworks station.
 async function insertFallbackGaugeData() {
   const fallback = [
-    { station: 'Taunsa Barrage',    river: 'Indus',  level_cm: 450, danger_cm: 900, rise_rate_cm_per_hr: 2 },
-    { station: 'Trimmu Headworks',  river: 'Chenab', level_cm: 380, danger_cm: 800, rise_rate_cm_per_hr: 1 },
-    { station: 'Rasul Barrage',     river: 'Jhelum', level_cm: 320, danger_cm: 700, rise_rate_cm_per_hr: 0.5 },
-    { station: 'Islam Headworks',   river: 'Sutlej', level_cm: 290, danger_cm: 600, rise_rate_cm_per_hr: 0 },
+    {
+      station: 'Taunsa Barrage',
+      river: 'Indus',
+      level_cm: 450,
+      danger_cm: 900,
+      rise_rate_cm_per_hr: 2,
+      lat: 30.68,   // Taunsa Barrage actual coordinates
+      lng: 70.65
+    },
+    {
+      station: 'Trimmu Headworks',
+      river: 'Chenab',
+      level_cm: 380,
+      danger_cm: 800,
+      rise_rate_cm_per_hr: 1,
+      lat: 31.15,   // Trimmu Headworks approximate
+      lng: 72.17
+    },
+    {
+      station: 'Rasul Barrage',
+      river: 'Jhelum',
+      level_cm: 320,
+      danger_cm: 700,
+      rise_rate_cm_per_hr: 0.5,
+      lat: 32.69,   // Rasul Barrage approximate
+      lng: 73.49
+    },
+    {
+      station: 'Islam Headworks',
+      river: 'Sutlej',
+      level_cm: 290,
+      danger_cm: 600,
+      rise_rate_cm_per_hr: 0,
+      lat: 29.69,   // Islam Headworks approximate
+      lng: 71.22
+    },
   ].map(r => ({ ...r, read_at: new Date() }));
+
   try {
     await RiverGauge.insertMany(fallback, { ordered: false });
     console.log('PMD: fallback gauge data inserted');
-  } catch {}
+  } catch (e) {
+    // Duplicate key is fine — data already exists
+  }
 }
 
 module.exports = { scrapePMDGauges };
