@@ -8,14 +8,26 @@ const helmet = require('helmet');
 const connectDB = require('./config/db');
 
 connectDB();
-
 require('./jobs/cron');
 
 const app = express();
 
 app.use(helmet());
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://192.168.100.50:3000'],
+  origin: function(origin, callback) {
+    const allowed = [
+      'http://localhost:3000',
+      'http://192.168.100.50:3000',
+      process.env.FRONTEND_URL,
+    ].filter(Boolean);
+
+    if (!origin || allowed.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked:', origin);
+      callback(new Error('CORS blocked: ' + origin));
+    }
+  },
   credentials: true
 }));
 app.use(express.json());
