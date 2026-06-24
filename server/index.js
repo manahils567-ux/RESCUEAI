@@ -21,7 +21,9 @@ app.use(cors({
       process.env.FRONTEND_URL,
     ].filter(Boolean);
 
-    if (!origin || allowed.includes(origin)) {
+    const isLocalDevOrigin = origin && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+
+    if (!origin || allowed.includes(origin) || isLocalDevOrigin) {
       callback(null, true);
     } else {
       console.log('CORS blocked:', origin);
