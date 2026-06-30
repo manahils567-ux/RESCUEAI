@@ -1,6 +1,5 @@
 // frontend/lib/api.js
-// const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
-const BACKEND_URL = '';  // Empty string
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
 
 // Health check
 export async function checkHealth() {
