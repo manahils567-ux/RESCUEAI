@@ -1,4 +1,4 @@
-# 🚨 BACHAO — Flood Intelligence System
+# RESCUEAI : Flood Intelligence System
 
 > Real-time flood prediction and evacuation guidance for Pakistan via WhatsApp
 
