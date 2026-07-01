@@ -32,9 +32,69 @@ const VALID_ROADS = [
   'tertiary'
 ];
 
+// ─── DISTRICT RESOLUTION ───────────────────────────────────────
+// Full Punjab district center list. Roads are matched to the
+// nearest district center by their midpoint coordinate.
+const DISTRICT_CENTERS = [
+  { name: "Rajanpur",        lat: 29.10, lng: 70.33 },
+  { name: "DG Khan",         lat: 30.70, lng: 70.65 },
+  { name: "Muzaffargarh",    lat: 30.07, lng: 71.19 },
+  { name: "Layyah",          lat: 30.96, lng: 70.94 },
+  { name: "Multan",          lat: 30.19, lng: 71.47 },
+  { name: "Bahawalpur",      lat: 29.39, lng: 71.68 },
+  { name: "Rahim Yar Khan",  lat: 28.42, lng: 70.30 },
+  { name: "Mianwali",        lat: 32.58, lng: 71.54 },
+  { name: "Bhakkar",         lat: 31.63, lng: 71.06 },
+  { name: "Lahore",          lat: 31.55, lng: 74.35 },
+  { name: "Faisalabad",      lat: 31.42, lng: 73.09 },
+  { name: "Gujranwala",      lat: 32.16, lng: 74.19 },
+  { name: "Sialkot",         lat: 32.49, lng: 74.53 },
+  { name: "Sargodha",        lat: 32.08, lng: 72.67 },
+  { name: "Sahiwal",         lat: 30.67, lng: 73.10 },
+  { name: "Gujrat",          lat: 32.57, lng: 74.08 },
+  { name: "Jhelum",          lat: 32.94, lng: 73.73 },
+  { name: "Sheikhupura",     lat: 31.71, lng: 73.98 },
+  { name: "Kasur",           lat: 31.12, lng: 74.45 },
+  { name: "Okara",           lat: 30.81, lng: 73.45 },
+  { name: "Toba Tek Singh",  lat: 30.97, lng: 72.48 },
+  { name: "Jhang",           lat: 31.27, lng: 72.32 },
+  { name: "Chiniot",         lat: 31.72, lng: 72.98 },
+  { name: "Hafizabad",       lat: 32.07, lng: 73.69 },
+  { name: "Mandi Bahauddin", lat: 32.59, lng: 73.49 },
+  { name: "Narowal",         lat: 32.10, lng: 74.87 },
+  { name: "Attock",          lat: 33.77, lng: 72.36 },
+  { name: "Chakwal",         lat: 32.93, lng: 72.86 },
+  { name: "Khushab",         lat: 32.30, lng: 72.35 },
+  { name: "Pakpattan",       lat: 30.34, lng: 73.39 },
+  { name: "Vehari",          lat: 30.03, lng: 72.35 },
+  { name: "Lodhran",         lat: 29.53, lng: 71.63 },
+  { name: "Khanewal",        lat: 30.30, lng: 71.93 },
+  { name: "Nankana Sahib",   lat: 31.45, lng: 73.70 },
+  { name: "Bahawalnagar",    lat: 29.99, lng: 73.25 },
+];
+
+function resolveDistrict(lat, lng) {
+  let nearest = null;
+  let minDist = Infinity;
+
+  for (const d of DISTRICT_CENTERS) {
+    const dist = Math.sqrt(Math.pow(lat - d.lat, 2) + Math.pow(lng - d.lng, 2));
+    if (dist < minDist) {
+      minDist = dist;
+      nearest = d.name;
+    }
+  }
+
+  // ~1.1 degrees (~120km) sanity cutoff — loosened from the original 0.75
+  // to account for large districts (DG Khan, Rahim Yar Khan) where the
+  // true center point can be far from roads still legitimately inside
+  // district bounds.
+  return minDist < 1.1 ? nearest : null;
+}
+
 async function pass1CollectRefs() {
   return new Promise((resolve, reject) => {
-    console.log('🚀 PASS 1: Collecting road node references...');
+    console.log('PASS 1: Collecting road node references...');
 
     const parser = new PbfParser();
     const neededNodeIds = new Set();
@@ -62,7 +122,7 @@ async function pass1CollectRefs() {
       })
 
       .on('end', () => {
-        console.log(`✅ PASS 1 complete`);
+        console.log(`PASS 1 complete`);
         console.log(`Needed Nodes: ${neededNodeIds.size}`);
         console.log(`Saved Ways: ${savedWays.length}`);
         resolve({ neededNodeIds, savedWays });
@@ -74,7 +134,7 @@ async function pass1CollectRefs() {
 
 async function pass2LoadNodesAndSave(neededNodeIds, savedWays) {
   return new Promise((resolve, reject) => {
-    console.log('🚀 PASS 2: Loading required nodes + saving roads...');
+    console.log('PASS 2: Loading required nodes + saving roads...');
 
     const parser = new PbfParser();
     const nodeMap = new Map();
@@ -102,6 +162,8 @@ async function pass2LoadNodesAndSave(neededNodeIds, savedWays) {
 
         let bulkOps = [];
         let count = 0;
+        let districtsAssigned = 0;
+        let districtsMissing = 0;
 
         for (const way of savedWays) {
           const coords = [];
@@ -115,6 +177,13 @@ async function pass2LoadNodesAndSave(neededNodeIds, savedWays) {
 
           if (coords.length < 2) continue;
 
+          // Use the midpoint of the road geometry to determine its district
+          const mid = coords[Math.floor(coords.length / 2)]; // [lng, lat]
+          const district = resolveDistrict(mid[1], mid[0]);
+
+          if (district) districtsAssigned++;
+          else districtsMissing++;
+
           bulkOps.push({
             updateOne: {
               filter: { osm_id: String(way.id) },
@@ -123,6 +192,7 @@ async function pass2LoadNodesAndSave(neededNodeIds, savedWays) {
                   osm_id: String(way.id),
                   name: way.tags?.name || way.tags?.ref || 'Unnamed',
                   road_type: way.tags?.highway || 'secondary',
+                  district,
                   geometry: {
                     type: 'LineString',
                     coordinates: coords
@@ -141,7 +211,7 @@ async function pass2LoadNodesAndSave(neededNodeIds, savedWays) {
             });
 
             count += bulkOps.length;
-            console.log(`💾 Inserted: ${count}`);
+            console.log(`Inserted: ${count}`);
             bulkOps = [];
           }
         }
@@ -154,7 +224,9 @@ async function pass2LoadNodesAndSave(neededNodeIds, savedWays) {
           count += bulkOps.length;
         }
 
-        console.log(`🎉 DONE: ${count} roads stored`);
+        console.log(`DONE: ${count} roads stored`);
+        console.log(`Districts assigned: ${districtsAssigned}`);
+        console.log(`Districts unresolved (null): ${districtsMissing}`);
         resolve();
       })
 
@@ -173,6 +245,6 @@ async function loadRoads() {
 }
 
 loadRoads().catch(err => {
-  console.error('❌ ERROR:', err);
+  console.error('ERROR:', err);
   process.exit(1);
 });

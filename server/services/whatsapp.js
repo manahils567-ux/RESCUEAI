@@ -8,18 +8,37 @@ const sd = require('../locales/sd');
 // WhatsApp API URL
 const WA_API = `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
 
+// Map of supported language codes to their locale modules
+const LOCALES = { ur, pa, sd };
+
+// ─── LOCALE RESOLVER ───────────────────────────────────────────
+// Looks up the registered user's saved language preference and
+// returns the matching locale module. Falls back to Urdu if the
+// user is unregistered, has no language set, or the DB is down.
+async function getLocale(phone) {
+  try {
+    const RegisteredPhone = require('../models/RegisteredPhone');
+    const user = await RegisteredPhone.findOne({ phone }).select('language');
+    return LOCALES[user?.language] || ur;
+  } catch (err) {
+    console.log('Database not connected, defaulting to Urdu locale');
+    return ur;
+  }
+}
+
 // ─── MAIN HANDLER ───────────────────────────────────────────
 async function handleIncomingMessage(message, contact) {
   const from = message.from; // sender's phone number
   const type = message.type; // "text", "location", "image"
+  const t = await getLocale(from); // resolved locale for this user
 
-  console.log(`📨 Message from ${from}, type: ${type}`);
+  console.log(`Message from ${from}, type: ${type}`);
 
   // FLOW A — User shares their GPS location
   if (type === 'location') {
     const { latitude: lat, longitude: lng } = message.location;
     await saveGroundReport(from, lat, lng, null, null);
-    await sendText(from, ur.REPORT_RECEIVED);
+    await sendText(from, t.REPORT_RECEIVED);
     return;
   }
 
@@ -29,7 +48,7 @@ async function handleIncomingMessage(message, contact) {
     const mediaUrl = await getMediaUrl(mediaId);
     const caption = message.image.caption || '';
     await saveGroundReport(from, null, null, mediaUrl, caption);
-    await sendText(from, ur.REPORT_RECEIVED);
+    await sendText(from, t.REPORT_RECEIVED);
     return;
   }
 
@@ -42,10 +61,9 @@ async function handleIncomingMessage(message, contact) {
     if (pending?.step === 'awaiting_district') {
       pendingRegistrations.delete(from);
       const { registerPhone } = require('./sms');
-      await registerPhone(from, text.trim(), text.trim(), 'ur', 'whatsapp');
+      await registerPhone(from, text.trim(), text.trim(), pending.language || 'ur', 'whatsapp');
       await sendText(from,
-        `✅ ${text.trim()} کے لیے رجسٹر ہو گئے!\n` +
-        `آپ کو سیلاب کے الرٹس ملیں گے۔\n` +
+        `Registered for ${text.trim()} alerts.\n` +
         `You will now receive flood alerts for ${text.trim()}.`
       );
       return;
@@ -53,44 +71,42 @@ async function handleIncomingMessage(message, contact) {
 
     const intent = detectIntent(text);
 
-    console.log(`🎯 Intent detected: ${intent}`);
+    console.log(`Intent detected: ${intent}`);
 
     if (intent === 'ROAD_STATUS') {
-      const reply = await getRoadStatusReply(text);
+      const reply = await getRoadStatusReply(text, t);
       await sendText(from, reply);
     }
     else if (intent === 'AGENT_UPDATE') {
       await handleAgentUpdate(from, text);
     }
     else if (intent === 'CAMP_LOCATION') {
-      await sendText(from, 
-        '📍 قریب ترین کیمپ: راجن پور حکومتی اسکول کیمپ\n' +
-        '🆘 مدد: 1122'
+      await sendText(from,
+        'Nearest camp: Rajanpur Government School Camp.\n' +
+        'Emergency: 1122'
       );
     }
     else if (intent === 'FLOOD_RISK') {
       await sendText(from,
-        '⚠️ سیلاب کی تازہ معلومات کے لیے BACHAO ڈیش بورڈ دیکھیں۔\n' +
-        '🆘 مدد: 1122'
+        'See the BACHAO dashboard for the latest flood risk information.\n' +
+        'Emergency: 1122'
       );
     }
     else if (intent === 'REGISTER') {
       pendingRegistrations.set(from, { step: 'awaiting_district' });
       await sendText(from,
-        `رجسٹریشن کے لیے اپنا ضلع لکھیں۔\n` +
-        `مثال: Rajanpur\n\n` +
         `To register, reply with your district name.\n` +
         `Example: Rajanpur`
       );
     }
     else {
-      await sendText(from, ur.HELP_MESSAGE);
+      await sendText(from, t.HELP_MESSAGE);
     }
   }
 }
 
 // ─── ROAD STATUS QUERY ────────────────────────────────────────
-async function getRoadStatusReply(text) {
+async function getRoadStatusReply(text, t) {
   // Road names to check in the message
   const roadNames = [
     'N-55', 'N-70', 'N-85', 'N-5', 'M-4',
@@ -102,7 +118,7 @@ async function getRoadStatusReply(text) {
   );
 
   if (!mentioned) {
-    return ur.ROAD_NOT_FOUND;
+    return t.ROAD_NOT_FOUND;
   }
 
   // Try to find road in database
@@ -112,16 +128,16 @@ async function getRoadStatusReply(text) {
       name: { $regex: mentioned, $options: 'i' }
     });
 
-    if (!road) return ur.ROAD_NOT_FOUND;
+    if (!road) return t.ROAD_NOT_FOUND;
 
-    if (road.status === 'green') return ur.ROAD_OPEN(road.name);
-    if (road.status === 'amber') return ur.ROAD_WARNING(road.name, road.hours_to_cutoff);
-    return ur.ROAD_CLOSED(road.name);
+    if (road.status === 'green') return t.ROAD_OPEN(road.name);
+    if (road.status === 'amber') return t.ROAD_WARNING(road.name, road.hours_to_cutoff);
+    return t.ROAD_CLOSED(road.name);
 
   } catch (err) {
-    // Database not connected yet — return mock response for testing
-    console.log('🔄 DB not connected, using mock response');
-    return `${mentioned} کی معلومات ابھی دستیاب نہیں۔ مدد: 1122`;
+    // Database not connected yet — return fallback response for testing
+    console.log('Database not connected, using fallback response');
+    return `Status for ${mentioned} is not currently available. Emergency: 1122`;
   }
 }
 
@@ -141,13 +157,14 @@ async function handleAgentUpdate(from, text) {
         { $set: { status: isClosed ? 'red' : 'green' } }
       );
     } catch (err) {
-      console.log('🔄 DB not connected, skipping update');
+      console.log('Database not connected, skipping update');
     }
     await sendText(from,
-      `✅ اپڈیٹ ہو گیا: ${road} کو ${isClosed ? '🔴 بند' : '🟢 کھلا'} نشان زد کر دیا گیا۔`
+      `Updated: ${road} marked as ${isClosed ? 'closed' : 'open'}.`
     );
   } else {
-    await sendText(from, ur.HELP_MESSAGE);
+    const t = await getLocale(from);
+    await sendText(from, t.HELP_MESSAGE);
   }
 }
 
@@ -163,9 +180,9 @@ async function saveGroundReport(phone, lat, lng, photoUrl, text) {
       message_text: text,
       reported_at: new Date()
     });
-    console.log(`📍 Ground report saved from ${phone}`);
+    console.log(`Ground report saved from ${phone}`);
   } catch (err) {
-    console.log('🔄 DB not connected, skipping ground report save');
+    console.log('Database not connected, skipping ground report save');
   }
 }
 
@@ -182,9 +199,9 @@ async function sendText(to, body) {
         Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`
       }
     });
-    console.log(`✅ Message sent to ${to}`);
+    console.log(`Message sent to ${to}`);
   } catch (err) {
-    console.error(`❌ Failed to send message to ${to}:`, err.message);
+    console.error(`Failed to send message to ${to}:`, err.message);
   }
 }
 
@@ -197,7 +214,7 @@ async function getMediaUrl(mediaId) {
     );
     return data.url;
   } catch (err) {
-    console.error('❌ Failed to get media URL:', err.message);
+    console.error('Failed to get media URL:', err.message);
     return null;
   }
 }
