@@ -2,7 +2,7 @@
 
 > Real-time flood prediction and evacuation guidance for Pakistan via WhatsApp
 
-**BACHAO** is an AI-powered flood intelligence platform that combines satellite imagery, real-time river gauge data, and citizen reports to predict flood risk and provide actionable evacuation routes via WhatsApp.
+**ResceAI** is an AI-powered flood intelligence platform that combines satellite imagery, real-time river gauge data, and citizen reports to predict flood risk and provide actionable evacuation routes via WhatsApp.
 
 ## 🎯 Mission
 
