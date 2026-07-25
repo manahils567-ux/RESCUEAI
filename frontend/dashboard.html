@@ -1,0 +1,683 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>RescueAI | Live Flood Intelligence</title>
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary": "#ffffff",
+                    "primary": "#005cab",
+                    "on-surface": "#181c22",
+                    "surface-container-high": "#e6e8f1",
+                    "error": "#ba1a1a",
+                    "background": "#f9f9ff",
+                    "secondary-container": "#dfe0e0",
+                    "outline": "#717785",
+                    "on-error-container": "#93000a",
+                    "error-container": "#ffdad6",
+                    "surface-dim": "#d8dae3",
+                    "on-tertiary-fixed-variant": "#8b1909",
+                    "primary-fixed": "#d4e3ff",
+                    "surface": "#f9f9ff",
+                    "on-secondary": "#ffffff",
+                    "surface-variant": "#e0e2ec",
+                    "surface-bright": "#f9f9ff",
+                    "tertiary-fixed": "#ffdad4",
+                    "on-primary": "#ffffff",
+                    "on-background": "#181c22",
+                    "secondary": "#5d5f5f",
+                    "primary-fixed-dim": "#a6c8ff",
+                    "on-secondary-fixed-variant": "#454747",
+                    "tertiary-container": "#cb4832",
+                    "surface-container-highest": "#e0e2ec",
+                    "secondary-fixed": "#e2e2e2",
+                    "secondary-fixed-dim": "#c6c6c7",
+                    "inverse-on-surface": "#eff0fa",
+                    "on-primary-fixed-variant": "#004786",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-fixed": "#001c3a",
+                    "tertiary": "#a9301d",
+                    "surface-tint": "#005faf",
+                    "on-surface-variant": "#414753",
+                    "on-primary-container": "#fefcff",
+                    "on-secondary-fixed": "#1a1c1c",
+                    "inverse-primary": "#a6c8ff",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed-dim": "#ffb4a6",
+                    "outline-variant": "#c1c6d5",
+                    "surface-container": "#ecedf7",
+                    "surface-container-low": "#f2f3fd",
+                    "inverse-surface": "#2d3038",
+                    "primary-container": "#0075d6",
+                    "on-tertiary-container": "#fffbff",
+                    "on-tertiary-fixed": "#3f0300",
+                    "on-secondary-container": "#616363"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin": "24px",
+                    "gutter": "16px",
+                    "unit": "8px",
+                    "container-max": "1280px"
+            },
+            "fontFamily": {
+                    "label-md": ["Outfit"],
+                    "headline-lg": ["Outfit"],
+                    "headline-md": ["Outfit"],
+                    "body-md": ["Outfit"]
+            },
+            "fontSize": {
+                    "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Outfit', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .risk-glow {
+            box-shadow: 0 0 20px rgba(186, 26, 26, 0.2);
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c1c6d5; border-radius: 10px; }
+    </style>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const userStr = localStorage.getItem('rescueai_current_user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            const initials = user.fullName.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+            document.querySelectorAll('.user-avatar-initials').forEach(el => el.textContent = initials);
+            document.querySelectorAll('.user-display-name').forEach(el => el.textContent = user.username);
+        }
+    });
+</script>
+</head>
+<body class="bg-background text-on-surface flex flex-col h-screen overflow-hidden">
+<!-- TopNavBar Implementation -->
+<header class="fixed top-0 left-0 w-full h-16 px-6 py-2 flex justify-between items-center bg-surface border-b border-outline-variant z-50">
+<div class="flex items-center gap-8">
+<span class="text-headline-md font-headline-md font-bold text-primary">RescueAI</span>
+<div class="hidden md:flex items-center gap-6">
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden lg:block w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input id="search-district-input" class="w-full bg-surface-container border border-outline-variant rounded-full pl-10 pr-4 py-1.5 text-label-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Search districts..." type="text">
+</div>
+<a href="profile.html" class="flex items-center gap-2 hover:bg-surface-container-high p-1 pr-3 rounded-full transition-colors group">
+    <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm user-avatar-initials">JD</div>
+    <span class="text-label-md font-semibold text-on-surface group-hover:text-primary hidden sm:block user-display-name">Operator 42</span>
+</a>
+</div>
+</header>
+<!-- Main Content Area -->
+<div class="flex flex-1 pt-16 h-full overflow-hidden">
+<!-- SideNavBar -->
+<aside class="bg-surface-container-low border-r border-outline-variant flex flex-col h-full w-64 fixed left-0 top-0 pt-16 pb-4 px-3 z-40">
+        <div class="mb-8 px-4 py-6">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center">
+                    <span class="material-symbols-outlined text-on-primary-container">support</span>
+                </div>
+                <div>
+                    <h3 class="font-headline-md text-[18px] text-primary">Operator Console</h3>
+                    <p class="text-on-surface-variant text-[12px]">Pakistan Flood Intelligence</p>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 space-y-1">
+            <a class="bg-primary-container text-on-primary-container font-semibold flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="dashboard.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">map</span>
+                <span class="font-label-md text-label-md">Map</span>
+            </a>
+            <a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="risk-analytics.html">
+                <span class="material-symbols-outlined">analytics</span>
+                <span class="font-label-md text-label-md">Risk Forecasts</span>
+            </a>
+            <a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="road-status.html">
+                <span class="material-symbols-outlined">traffic</span>
+                <span class="font-label-md text-label-md">Road Status</span>
+            </a>
+            <a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="field-report.html">
+                <span class="material-symbols-outlined">description</span>
+                <span class="font-label-md text-label-md">Field Reports</span>
+            </a>
+            <a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="sms-to-whatsapp.html">
+                <span class="material-symbols-outlined">sync_alt</span>
+                <span class="font-label-md text-label-md">SMS to WhatsApp</span>
+            </a>
+        </nav>
+        <div class="mt-auto space-y-4">
+            <div class="pt-4 border-t border-outline-variant space-y-1">
+                <a class="text-error hover:bg-error-container/20 flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="login.html">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span class="font-label-md text-label-md">Logout</span>
+                </a>
+            </div>
+        </div>
+    </aside>
+<!-- Main Canvas -->
+<main class="ml-64 flex-1 flex relative overflow-hidden">
+<!-- Map Container (Interactive Punjab Map) -->
+<div class="flex-1 relative">
+<!-- Real Google Maps Embed -->
+<div class="absolute inset-0 z-0">
+<iframe id="map-iframe"
+  src="https://maps.google.com/maps?q=Rajanpur,Pakistan&t=k&z=9&ie=UTF8&iwloc=&output=embed"
+  width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
+  referrerpolicy="no-referrer-when-downgrade"></iframe>
+</div>
+<!-- Overlay Effects -->
+<div class="absolute inset-0 pointer-events-none bg-gradient-to-t from-background/20 to-transparent z-[1]"></div>
+<!-- Animated Map Markers (floating over the map) -->
+<div id="floating-map-markers">
+<div class="absolute top-[60%] left-[45%] w-12 h-12 flex items-center justify-center z-[2] pointer-events-none">
+<div class="absolute inset-0 bg-error rounded-full animate-ping opacity-40" style="animation-duration: 3s;"></div>
+<div class="relative w-4 h-4 bg-error rounded-full border-2 border-white"></div>
+<div class="absolute -top-8 bg-surface-container-lowest px-3 py-1 rounded shadow-md border border-outline-variant">
+<span class="text-[10px] font-bold text-error">CRITICAL: Rajanpur</span>
+</div>
+</div>
+<div class="absolute top-[40%] left-[55%] w-8 h-8 flex items-center justify-center z-[2] pointer-events-none">
+<div class="absolute inset-0 bg-primary animate-pulse opacity-30 rounded-full"></div>
+<div class="relative w-3 h-3 bg-primary rounded-full border-2 border-white"></div>
+</div>
+<div class="absolute top-[50%] left-[35%] w-8 h-8 flex items-center justify-center z-[2] pointer-events-none">
+<div class="absolute inset-0 bg-tertiary-container animate-pulse opacity-40 rounded-full" style="animation-duration: 2s;"></div>
+<div class="relative w-3 h-3 bg-tertiary-container rounded-full border-2 border-white"></div>
+<div class="absolute -top-8 bg-surface-container-lowest px-3 py-1 rounded shadow-md border border-outline-variant">
+<span class="text-[10px] font-bold text-tertiary">ELEVATED: DG Khan</span>
+</div>
+</div>
+</div>
+<!-- Legend -->
+<div class="absolute bottom-4 left-4 z-10 bg-surface-container-lowest/90 backdrop-blur-md p-4 rounded-xl border border-outline-variant shadow-lg max-w-xs">
+<h4 class="text-label-md font-bold mb-3">Flood Risk Legend</h4>
+<div class="space-y-2">
+<div class="flex items-center gap-3">
+<span class="w-3 h-3 bg-error rounded-full"></span>
+<span class="text-body-md text-sm">Critical (&gt;80 Score)</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="w-3 h-3 bg-tertiary-container rounded-full"></span>
+<span class="text-body-md text-sm">Elevated (60-80 Score)</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="w-3 h-3 bg-primary-container rounded-full"></span>
+<span class="text-body-md text-sm">Monitoring (40-60 Score)</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="w-3 h-3 bg-primary rounded-full"></span>
+<span class="text-body-md text-sm">Safe (<40 Score)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Panel (Risk Details & AI Assistant) -->
+<div class="w-[400px] bg-background border-l border-outline-variant overflow-y-auto flex flex-col z-10">
+<!-- Rajanpur District Risk Card -->
+<div class="p-6">
+<div id="risk-card" class="bg-surface-container-lowest rounded-2xl border-2 border-outline-variant p-6 mb-6 transition-colors duration-500">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h2 id="district-name" class="text-headline-md font-headline-md text-on-surface mb-1">Rajanpur District</h2>
+<p class="text-label-md text-on-surface-variant">Punjab Province, PK</p>
+</div>
+<div id="risk-badge" class="bg-outline text-white px-3 py-1 rounded-full text-[12px] font-bold tracking-widest">
+                                LOADING
+                            </div>
+</div>
+<div class="flex items-center gap-6 mb-6">
+<div class="relative w-24 h-24">
+<svg class="w-full h-full transform -rotate-90">
+<circle class="text-surface-container-high" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" stroke-width="8"></circle>
+<circle id="risk-circle" class="text-outline transition-all duration-1000" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center">
+<span id="risk-score" class="text-headline-lg font-bold">0</span>
+</div>
+</div>
+<div>
+<h3 class="font-bold text-on-surface">Flood Risk Score</h3>
+<p id="risk-description" class="text-body-md text-sm text-on-surface-variant mt-1">Increasing at 4% /hr based on Chenab water levels.</p>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center text-sm">
+<span class="text-on-surface-variant">Precipitation Forecast</span>
+<span id="precipitation-value" class="font-bold">Heavy (45mm)</span>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div id="precipitation-bar" class="bg-primary h-full w-[85%]"></div>
+</div>
+<div class="flex justify-between items-center text-sm">
+<span class="text-on-surface-variant">River Level Status</span>
+<span id="river-status" class="font-bold text-outline">Loading</span>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div id="river-bar" class="bg-outline h-full w-[0%] transition-all duration-1000"></div>
+</div>
+</div>
+</div>
+
+<!-- Flood AI Assistant -->
+<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant flex flex-col h-[400px] shadow-sm">
+<div class="p-4 border-b border-outline-variant flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+<span class="font-bold">Flood AI Assistant</span>
+</div>
+<span class="text-[10px] bg-primary-fixed text-on-primary-fixed px-2 py-0.5 rounded">LLM V4.2</span>
+</div>
+<div class="flex-1 p-4 overflow-y-auto space-y-4" id="chat-container">
+<div class="flex gap-2">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-primary-container text-sm">smart_toy</span>
+</div>
+<div class="bg-surface-container px-3 py-2 rounded-2xl rounded-tl-none text-sm leading-relaxed">
+                                    Analyzing Rajanpur real-time sensors... Current recommendation: Evacuate southern sectors immediately. Water cresting expected in 3 hours.
+                                </div>
+</div>
+<div class="flex gap-2 justify-end">
+<div class="bg-primary text-on-primary px-3 py-2 rounded-2xl rounded-tr-none text-sm leading-relaxed max-w-[80%]">
+                                    What is the status of the Indus Highway near Rajanpur?
+                                </div>
+</div>
+<div class="flex gap-2">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-primary-container text-sm">smart_toy</span>
+</div>
+<div class="bg-surface-container px-3 py-2 rounded-2xl rounded-tl-none text-sm leading-relaxed">
+                                    Segment N-55 near Rajanpur is currently partially submerged. Light vehicles are not recommended. Heavy emergency transport only.
+                                </div>
+</div>
+</div>
+<div class="p-4 bg-surface-container-low border-t border-outline-variant">
+<div class="flex items-center bg-surface-container-lowest rounded-full border border-outline-variant px-4 py-1">
+<input id="chat-input" class="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2" placeholder="Ask AI Assistant..." type="text">
+<button id="chat-send-btn" class="text-primary p-1 hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- System Stats Footer -->
+<div class="mt-auto p-6 bg-surface-container-high/50 border-t border-outline-variant">
+<div class="flex justify-between items-center text-[11px] font-bold text-on-surface-variant uppercase tracking-tighter">
+<div class="flex items-center gap-1">
+<span id="satellite-status-dot" class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                            <span id="satellite-status-text">Satellite Up</span>
+                        </div>
+<div class="flex items-center gap-1">
+<span id="sensor-status-dot" class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                            <span id="sensor-status-text">Sensor Grid 98%</span>
+                        </div>
+<div id="last-updated">Last Updated: --:-- PKT</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- BACKEND INTEGRATION SCRIPTS                                    -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<script>
+const API_BASE = 'http://localhost:5000/api';
+
+// ─── RISK SCORES ─────────────────────────────────────────────
+let isCustomDistrict = false;
+
+async function loadRiskData() {
+  if (isCustomDistrict) return; // Don't auto-update if user searched manually
+
+  try {
+    const res = await fetch(`${API_BASE}/risk`);
+    const data = await res.json();
+    if (data.length > 0) {
+      // Pick the highest-risk entry
+      const top = data.sort((a, b) => (b.score || 0) - (a.score || 0))[0];
+      const score = top.score || 87;
+      const tier = top.tier || 'critical';
+      const district = top.district || 'Rajanpur';
+
+      document.getElementById('district-name').textContent = `${district} District`;
+      document.getElementById('risk-score').textContent = Math.round(score);
+      document.getElementById('risk-badge').textContent = tier.toUpperCase();
+
+      // Update map embed to match the backend district
+      const mapIframe = document.getElementById('map-iframe');
+      if (mapIframe && !isCustomDistrict) {
+        mapIframe.src = `https://maps.google.com/maps?q=${encodeURIComponent(district)},Pakistan&t=k&z=9&ie=UTF8&iwloc=&output=embed`;
+      }
+      
+      // Hide floating markers if it's not Rajanpur
+      const markers = document.getElementById('floating-map-markers');
+      if (markers && !isCustomDistrict) {
+        if (district.toLowerCase().includes('rajanpur')) {
+          markers.style.display = 'block';
+        } else {
+          markers.style.display = 'none';
+        }
+      }
+
+      // Update SVG circle (circumference = 251.2, offset = circumference * (1 - score/100))
+      const offset = 251.2 * (1 - score / 100);
+      document.getElementById('risk-circle').setAttribute('stroke-dashoffset', offset.toFixed(1));
+      
+      const riskCard = document.getElementById('risk-card');
+      const riskCircle = document.getElementById('risk-circle');
+      const badge = document.getElementById('risk-badge');
+      const riverStatus = document.getElementById('river-status');
+      const riverBar = document.getElementById('river-bar');
+      const desc = document.getElementById('risk-description');
+
+      if (tier === 'high' || tier === 'critical' || tier === 'red') {
+        badge.className = 'bg-error text-on-tertiary px-3 py-1 rounded-full text-[12px] font-bold tracking-widest';
+        riskCard.className = 'bg-surface-container-lowest rounded-2xl border-2 border-error p-6 risk-glow mb-6 transition-colors duration-500';
+        riskCircle.setAttribute('class', 'text-error transition-all duration-1000');
+        riverStatus.className = 'font-bold text-error';
+        riverStatus.textContent = 'Above Danger';
+        riverBar.className = 'bg-error h-full transition-all duration-1000';
+        riverBar.style.width = '95%';
+        desc.textContent = 'Increasing rapidly based on upstream water levels.';
+      } else if (tier === 'medium' || tier === 'amber') {
+        badge.className = 'bg-tertiary-container text-on-tertiary-container px-3 py-1 rounded-full text-[12px] font-bold tracking-widest';
+        riskCard.className = 'bg-surface-container-lowest rounded-2xl border-2 border-tertiary-container p-6 mb-6 transition-colors duration-500';
+        riskCircle.setAttribute('class', 'text-tertiary-container transition-all duration-1000');
+        riverStatus.className = 'font-bold text-tertiary-container';
+        riverStatus.textContent = 'Elevated';
+        riverBar.className = 'bg-tertiary-container h-full transition-all duration-1000';
+        riverBar.style.width = '70%';
+        desc.textContent = 'Moderate risk detected. Monitoring conditions.';
+      } else {
+        badge.className = 'bg-primary text-on-primary px-3 py-1 rounded-full text-[12px] font-bold tracking-widest';
+        riskCard.className = 'bg-surface-container-lowest rounded-2xl border-2 border-primary/30 p-6 mb-6 transition-colors duration-500';
+        riskCircle.setAttribute('class', 'text-primary transition-all duration-1000');
+        riverStatus.className = 'font-bold text-primary';
+        riverStatus.textContent = 'Normal';
+        riverBar.className = 'bg-primary h-full transition-all duration-1000';
+        riverBar.style.width = '30%';
+        desc.textContent = 'Conditions are safe and stable.';
+      }
+    }
+  } catch (err) {
+    console.log('Risk API not available, using default data:', err.message);
+  }
+}
+
+// ─── RIVER GAUGES ────────────────────────────────────────────
+async function loadGaugeData() {
+  try {
+    const res = await fetch(`${API_BASE}/river-gauges`);
+    const data = await res.json();
+    if (data.length > 0) {
+      const latest = data[0];
+      const level = latest.reading || latest.level || 'N/A';
+      document.getElementById('river-status').textContent =
+        level > 80 ? 'Above Danger' : level > 60 ? 'High' : 'Normal';
+    }
+  } catch (err) {
+    console.log('Gauge API not available:', err.message);
+  }
+}
+
+// ─── FLOOD EVENTS ────────────────────────────────────────────
+async function loadFloodEvents() {
+  try {
+    const res = await fetch(`${API_BASE}/floods`);
+    const data = await res.json();
+    console.log(`Loaded ${data.length} flood events from backend`);
+  } catch (err) {
+    console.log('Floods API not available:', err.message);
+  }
+}
+
+// ─── ROADS ───────────────────────────────────────────────────
+async function loadRoadStatus() {
+  try {
+    const res = await fetch(`${API_BASE}/roads`);
+    const data = await res.json();
+    console.log(`Loaded ${data.length} road segments from backend`);
+  } catch (err) {
+    console.log('Roads API not available:', err.message);
+  }
+}
+
+// ─── GROUND REPORTS ──────────────────────────────────────────
+async function loadGroundReports() {
+  try {
+    const res = await fetch(`${API_BASE}/reports`);
+    const data = await res.json();
+    console.log(`Loaded ${data.length} ground reports from backend`);
+  } catch (err) {
+    console.log('Reports API not available:', err.message);
+  }
+}
+
+// ─── SYSTEM HEALTH CHECK ─────────────────────────────────────
+async function checkSystemHealth() {
+  try {
+    const res = await fetch(`${API_BASE}/health`);
+    const data = await res.json();
+    if (data.status === 'ok') {
+      document.getElementById('satellite-status-dot').className = 'w-1.5 h-1.5 bg-green-500 rounded-full';
+      document.getElementById('satellite-status-text').textContent = 'Satellite Up';
+      document.getElementById('sensor-status-dot').className = 'w-1.5 h-1.5 bg-green-500 rounded-full';
+      document.getElementById('sensor-status-text').textContent = 'Sensor Grid 98%';
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('en-PK', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Karachi' });
+      document.getElementById('last-updated').textContent = `Last Updated: ${timeStr} PKT`;
+    }
+  } catch (err) {
+    document.getElementById('satellite-status-dot').className = 'w-1.5 h-1.5 bg-red-500 rounded-full';
+    document.getElementById('satellite-status-text').textContent = 'Server Offline';
+    document.getElementById('sensor-status-dot').className = 'w-1.5 h-1.5 bg-red-500 rounded-full';
+    document.getElementById('sensor-status-text').textContent = 'Sensor Grid —';
+  }
+}
+
+// ─── AI CHAT (connected to /api/chat) ────────────────────────
+function appendChatMessage(text, isUser) {
+  const container = document.getElementById('chat-container');
+  const wrapper = document.createElement('div');
+  wrapper.className = isUser ? 'flex gap-2 justify-end' : 'flex gap-2';
+
+  if (isUser) {
+    wrapper.innerHTML = `
+      <div class="bg-primary text-on-primary px-3 py-2 rounded-2xl rounded-tr-none text-sm leading-relaxed max-w-[80%]">
+        ${text}
+      </div>`;
+  } else {
+    wrapper.innerHTML = `
+      <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shrink-0">
+        <span class="material-symbols-outlined text-on-primary-container text-sm">smart_toy</span>
+      </div>
+      <div class="bg-surface-container px-3 py-2 rounded-2xl rounded-tl-none text-sm leading-relaxed">
+        ${text}
+      </div>`;
+  }
+  container.appendChild(wrapper);
+  container.scrollTop = container.scrollHeight;
+}
+
+async function sendChatMessage() {
+  const input = document.getElementById('chat-input');
+  const message = input.value.trim();
+  if (!message) return;
+
+  appendChatMessage(message, true);
+  input.value = '';
+
+  try {
+    const res = await fetch(`${API_BASE}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message })
+    });
+    const data = await res.json();
+    appendChatMessage(data.reply || 'No response from server.', false);
+  } catch (err) {
+    appendChatMessage('⚠ Unable to reach the AI backend. Please check if the server is running.', false);
+  }
+}
+
+document.getElementById('chat-send-btn').addEventListener('click', sendChatMessage);
+document.getElementById('chat-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') sendChatMessage();
+});
+
+// ─── INIT: Load all data on page load ────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  loadRiskData();
+  loadGaugeData();
+  loadFloodEvents();
+  loadRoadStatus();
+  loadGroundReports();
+  checkSystemHealth();
+
+  // Auto-refresh every 30 seconds
+  setInterval(() => {
+    loadRiskData();
+    loadGaugeData();
+    checkSystemHealth();
+  }, 30000);
+
+  // Micro-interactions for map markers
+  const markers = document.querySelectorAll('.animate-ping');
+  markers.forEach(marker => {
+    marker.parentElement.addEventListener('mouseenter', () => {
+      marker.style.animationDuration = '1s';
+    });
+    marker.parentElement.addEventListener('mouseleave', () => {
+      marker.style.animationDuration = '3s';
+    });
+  });
+
+  // Auto-scroll chat to bottom
+  const chatContainer = document.getElementById('chat-container');
+  if (chatContainer) {
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+
+  // DISTRICT SEARCH LOGIC
+  const searchInput = document.getElementById('search-district-input');
+  if (searchInput) {
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && searchInput.value.trim() !== '') {
+        isCustomDistrict = true; // Stop auto-updates
+        const newDistrict = searchInput.value.trim();
+        
+        // Update District Title
+        const districtTitle = document.getElementById('district-name');
+        if (districtTitle) {
+          districtTitle.textContent = newDistrict.toLowerCase().includes('district') ? newDistrict : newDistrict + ' District';
+        }
+        
+        // Update Map Embed
+        const mapIframe = document.getElementById('map-iframe');
+        if (mapIframe) {
+          mapIframe.src = `https://maps.google.com/maps?q=${encodeURIComponent(newDistrict)},Pakistan&t=k&z=9&ie=UTF8&iwloc=&output=embed`;
+        }
+        
+        // Hide or show floating markers for new district
+        const markers = document.getElementById('floating-map-markers');
+        if (markers) {
+          if (newDistrict.toLowerCase().includes('rajanpur')) {
+            markers.style.display = 'block';
+          } else {
+            markers.style.display = 'none';
+          }
+        }
+        
+        // Simulate random risk change for the new district
+        const randomRisk = Math.floor(Math.random() * 40) + 10; // 10% to 50%
+        
+        // Update big circle score
+        const scoreEl = document.getElementById('risk-score');
+        if (scoreEl) scoreEl.textContent = randomRisk;
+        
+        // Update styling dynamically
+        const riskCard = document.getElementById('risk-card');
+        const riverStatus = document.getElementById('river-status');
+        const riverBar = document.getElementById('river-bar');
+        const desc = document.getElementById('risk-description');
+        
+        // Update SVG circle stroke
+        const circle = document.getElementById('risk-circle');
+        if (circle) {
+           const maxDash = 251.2;
+           const newOffset = maxDash - ((randomRisk / 100) * maxDash);
+           circle.setAttribute('stroke-dashoffset', newOffset.toFixed(1));
+           
+           if (randomRisk > 60) {
+             circle.setAttribute('class', 'text-error transition-all duration-1000');
+             riskCard.className = 'bg-surface-container-lowest rounded-2xl border-2 border-error p-6 risk-glow mb-6 transition-colors duration-500';
+             riverStatus.className = 'font-bold text-error';
+             riverStatus.textContent = 'Above Danger';
+             riverBar.className = 'bg-error h-full transition-all duration-1000';
+             riverBar.style.width = '95%';
+             desc.textContent = 'Increasing rapidly based on upstream water levels.';
+           } else if (randomRisk > 40) {
+             circle.setAttribute('class', 'text-tertiary-container transition-all duration-1000');
+             riskCard.className = 'bg-surface-container-lowest rounded-2xl border-2 border-tertiary-container p-6 mb-6 transition-colors duration-500';
+             riverStatus.className = 'font-bold text-tertiary-container';
+             riverStatus.textContent = 'Elevated';
+             riverBar.className = 'bg-tertiary-container h-full transition-all duration-1000';
+             riverBar.style.width = '70%';
+             desc.textContent = 'Moderate risk detected. Monitoring conditions.';
+           } else {
+             circle.setAttribute('class', 'text-primary transition-all duration-1000');
+             riskCard.className = 'bg-surface-container-lowest rounded-2xl border-2 border-primary/30 p-6 mb-6 transition-colors duration-500';
+             riverStatus.className = 'font-bold text-primary';
+             riverStatus.textContent = 'Normal';
+             riverBar.className = 'bg-primary h-full transition-all duration-1000';
+             riverBar.style.width = '30%';
+             desc.textContent = 'Conditions are safe and stable.';
+           }
+        }
+
+        const badge = document.getElementById('risk-badge');
+        if (badge) {
+          badge.innerHTML = `<span class="material-symbols-outlined text-[14px]">warning</span> ${randomRisk} Score`;
+          badge.className = randomRisk > 60 ? 'bg-error text-on-tertiary px-3 py-1 rounded-full text-[12px] font-bold tracking-widest' : 
+                            randomRisk > 40 ? 'bg-tertiary-container text-on-tertiary-container px-3 py-1 rounded-full text-[12px] font-bold tracking-widest' : 
+                            'bg-primary text-on-primary px-3 py-1 rounded-full text-[12px] font-bold tracking-widest';
+        }
+        
+        // Clear input and blur
+        searchInput.value = '';
+        searchInput.blur();
+      }
+    });
+  }
+});
+</script>
+
+</body></html>

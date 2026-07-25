@@ -13,9 +13,9 @@ router.get('/', async (req, res) => {
       filter.district = req.query.district;
     }
 
-    // Only return last 24 hours of reports
-    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    filter.reported_at = { $gte: oneDayAgo };
+    // Return last 7 days of reports to ensure the console shows data
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    filter.reported_at = { $gte: sevenDaysAgo };
 
     const reports = await GroundReport.find(filter)
       .sort({ reported_at: -1 })

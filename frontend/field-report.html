@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RescueAI | Operator Console</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary": "#ffffff",
+                    "primary": "#005cab",
+                    "on-surface": "#181c22",
+                    "surface-container-high": "#e6e8f1",
+                    "error": "#ba1a1a",
+                    "background": "#f9f9ff",
+                    "secondary-container": "#dfe0e0",
+                    "outline": "#717785",
+                    "on-error-container": "#93000a",
+                    "error-container": "#ffdad6",
+                    "surface-dim": "#d8dae3",
+                    "on-tertiary-fixed-variant": "#8b1909",
+                    "primary-fixed": "#d4e3ff",
+                    "surface": "#f9f9ff",
+                    "on-secondary": "#ffffff",
+                    "surface-variant": "#e0e2ec",
+                    "surface-bright": "#f9f9ff",
+                    "tertiary-fixed": "#ffdad4",
+                    "on-primary": "#ffffff",
+                    "on-background": "#181c22",
+                    "secondary": "#5d5f5f",
+                    "primary-fixed-dim": "#a6c8ff",
+                    "on-secondary-fixed-variant": "#454747",
+                    "tertiary-container": "#cb4832",
+                    "surface-container-highest": "#e0e2ec",
+                    "secondary-fixed": "#e2e2e2",
+                    "secondary-fixed-dim": "#c6c6c7",
+                    "inverse-on-surface": "#eff0fa",
+                    "on-primary-fixed-variant": "#004786",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-fixed": "#001c3a",
+                    "tertiary": "#a9301d",
+                    "surface-tint": "#005faf",
+                    "on-surface-variant": "#414753",
+                    "on-primary-container": "#fefcff",
+                    "on-secondary-fixed": "#1a1c1c",
+                    "inverse-primary": "#a6c8ff",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed-dim": "#ffb4a6",
+                    "outline-variant": "#c1c6d5",
+                    "surface-container": "#ecedf7",
+                    "surface-container-low": "#f2f3fd",
+                    "inverse-surface": "#2d3038",
+                    "primary-container": "#0075d6",
+                    "on-tertiary-container": "#fffbff",
+                    "on-tertiary-fixed": "#3f0300",
+                    "on-secondary-container": "#616363"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "label-md": ["Outfit"],
+                    "headline-lg": ["Outfit"],
+                    "headline-md": ["Outfit"],
+                    "body-md": ["Outfit"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        body { font-family: 'Outfit', sans-serif; -webkit-font-smoothing: antialiased; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(24, 28, 34, 0.05);
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d4e3ff; border-radius: 10px; }
+        .map-pulse {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #005cab;
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(0, 92, 171, 0.7);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 92, 171, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 92, 171, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 92, 171, 0); }
+        }
+    </style>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const userStr = localStorage.getItem('rescueai_current_user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            const initials = user.fullName.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+            document.querySelectorAll('.user-avatar-initials').forEach(el => el.textContent = initials);
+            document.querySelectorAll('.user-display-name').forEach(el => el.textContent = user.username);
+        }
+    });
+</script>
+</head>
+<body class="bg-background text-on-surface">
+<!-- TopNavBar -->
+<header class="bg-surface docked full-width top-0 border-b border-outline-variant flex justify-between items-center w-full px-6 py-2 h-16 fixed z-50">
+<div class="flex items-center gap-8">
+<span class="text-headline-md font-headline-md font-bold text-primary">RescueAI</span>
+<div class="hidden md:flex items-center gap-6">
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden lg:block w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input id="search-district-input" class="w-full bg-surface-container border border-outline-variant rounded-full pl-10 pr-4 py-1.5 text-label-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Search..." type="text">
+</div>
+<a href="profile.html" class="flex items-center gap-2 hover:bg-surface-container-high p-1 pr-3 rounded-full transition-colors group">
+    <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm user-avatar-initials">JD</div>
+    <span class="text-label-md font-semibold text-on-surface group-hover:text-primary hidden sm:block user-display-name">Operator 42</span>
+</a>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="bg-surface-container-low border-r border-outline-variant flex flex-col h-full w-64 fixed left-0 top-0 pt-16 pb-4 px-3 z-40">
+        <div class="mb-8 px-4 py-6">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center">
+                    <span class="material-symbols-outlined text-on-primary-container">support</span>
+                </div>
+                <div>
+                    <h3 class="font-headline-md text-[18px] text-primary">Operator Console</h3>
+                    <p class="text-on-surface-variant text-[12px]">Pakistan Flood Intelligence</p>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 space-y-1">
+            <a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="dashboard.html">
+                <span class="material-symbols-outlined">map</span>
+                <span class="font-label-md text-label-md">Map</span>
+            </a>
+            <a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="risk-analytics.html">
+                <span class="material-symbols-outlined">analytics</span>
+                <span class="font-label-md text-label-md">Risk Forecasts</span>
+            </a>
+            <a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="road-status.html">
+                <span class="material-symbols-outlined">traffic</span>
+                <span class="font-label-md text-label-md">Road Status</span>
+            </a>
+            <a class="bg-primary-container text-on-primary-container font-semibold flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="field-report.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">description</span>
+                <span class="font-label-md text-label-md">Field Reports</span>
+            </a>
+            <a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="sms-to-whatsapp.html">
+                <span class="material-symbols-outlined">sync_alt</span>
+                <span class="font-label-md text-label-md">SMS to WhatsApp</span>
+            </a>
+        </nav>
+        <div class="mt-auto space-y-4">
+            <div class="pt-4 border-t border-outline-variant space-y-1">
+                <a class="text-error hover:bg-error-container/20 flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="login.html">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span class="font-label-md text-label-md">Logout</span>
+                </a>
+            </div>
+        </div>
+    </aside>
+<!-- Main Content -->
+<main class="ml-64 pt-20 p-6 min-h-screen">
+<div class="max-w-[1400px] mx-auto space-y-8">
+<!-- Welcome Header -->
+<header class="flex flex-col md:flex-row justify-between items-end gap-4">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Good Morning, Agent</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">System integrity verified. Reviewing real-time field reports for the Indus basin.</p>
+</div>
+<div class="flex gap-4">
+<div class="bg-surface-container-highest px-6 py-4 rounded-2xl flex flex-col items-center min-w-[140px]">
+<span id="active-reports-count" class="text-headline-md font-bold text-primary">0</span>
+<span class="text-label-md font-label-md text-outline">Active Reports</span>
+</div>
+<div class="bg-surface-container-highest px-6 py-4 rounded-2xl flex flex-col items-center min-w-[140px]">
+<span class="text-headline-md font-bold text-on-surface">08</span>
+<span class="text-label-md font-label-md text-outline">Pending Tasks</span>
+</div>
+</div>
+</header>
+<!-- Grid Layout -->
+<div class="grid grid-cols-12 gap-6 items-start">
+<!-- Left: Field Matrix Map -->
+<section class="col-span-12 lg:col-span-8 space-y-6">
+<div class="bg-surface-container-lowest rounded-[24px] border border-outline-variant overflow-hidden relative">
+<div class="p-6 flex justify-between items-center absolute top-0 left-0 w-full z-10 bg-gradient-to-b from-white/90 to-transparent">
+<h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">distance</span>
+                                Field Matrix
+                            </h3>
+<div class="flex gap-2">
+<span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-label-md font-bold">LIVE UPDATE</span>
+<span class="px-3 py-1 bg-surface-container-high text-on-surface-variant rounded-full text-label-md">Sindh District</span>
+</div>
+</div>
+<!-- Map Placeholder -->
+<div id="field-map-container" class="w-full h-[500px] bg-surface-dim relative group overflow-hidden">
+<!-- Real Google Maps Embed -->
+<div class="absolute inset-0 z-0">
+<iframe id="map-iframe"
+  src="https://maps.google.com/maps?q=Sindh,Pakistan&t=k&z=8&ie=UTF8&iwloc=&output=embed"
+  width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
+  referrerpolicy="no-referrer-when-downgrade"></iframe>
+</div>
+<!-- Overlay Effects -->
+<div class="absolute inset-0 pointer-events-none bg-gradient-to-t from-background/20 to-transparent z-[1]"></div>
+<!-- Interactive Map Points will be injected here -->
+</div>
+</div>
+<!-- Active Missions -->
+<div class="bg-surface-container-lowest p-8 rounded-[24px] border border-outline-variant">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-headline-md text-on-surface">Active Missions</h3>
+<button class="text-primary font-bold text-label-md flex items-center gap-1 hover:underline">View All Archive <span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="p-4 border border-outline-variant rounded-2xl flex items-center gap-4 hover:border-primary transition-colors cursor-pointer group">
+<div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
+<span class="material-symbols-outlined">helicopter</span>
+</div>
+<div class="flex-grow">
+<p class="font-bold text-on-surface">Mission Delta-9</p>
+<p class="text-label-md text-on-surface-variant">Supply drop to stranded sectors</p>
+</div>
+<div class="text-right">
+<p class="text-label-md font-bold text-primary">82%</p>
+<div class="w-16 h-1 bg-surface-container-high rounded-full mt-1"><div class="w-[82%] h-full bg-primary rounded-full"></div></div>
+</div>
+</div>
+<div class="p-4 border border-outline-variant rounded-2xl flex items-center gap-4 hover:border-primary transition-colors cursor-pointer group">
+<div class="w-12 h-12 rounded-xl bg-tertiary/10 flex items-center justify-center text-tertiary group-hover:bg-tertiary group-hover:text-white transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">medical_services</span>
+</div>
+<div class="flex-grow">
+<p class="font-bold text-on-surface">Medical Outpost 3</p>
+<p class="text-label-md text-on-surface-variant">Vaccine deployment cycle</p>
+</div>
+<div class="text-right">
+<p class="text-label-md font-bold text-tertiary">45%</p>
+<div class="w-16 h-1 bg-surface-container-high rounded-full mt-1"><div class="w-[45%] h-full bg-tertiary rounded-full"></div></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Right: Real-Time Field Reports Feed -->
+<section class="col-span-12 lg:col-span-4 flex flex-col gap-6">
+<div class="bg-surface-container-lowest p-6 rounded-[24px] border border-outline-variant flex flex-col max-h-[860px]">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline-md text-headline-md text-on-surface">Field Reports</h3>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 bg-error rounded-full animate-pulse"></span>
+<span id="live-count" class="text-label-md text-error font-bold">0 LIVE</span>
+</div>
+</div>
+<div id="reports-list" class="space-y-4 overflow-y-auto pr-2 custom-scrollbar flex-1 min-h-[300px]">
+    <div class="text-center text-outline py-4">Loading reports from API...</div>
+</div>
+<button class="w-full mt-6 py-3 border-2 border-primary/20 text-primary font-bold rounded-xl hover:bg-primary/5 transition-colors" onclick="downloadDigest()">
+                            Generate Full Digest
+                        </button>
+</div>
+<!-- Statistics / Mini Charts -->
+<div class="bg-surface-container-lowest p-6 rounded-[24px] border border-outline-variant flex flex-col gap-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined">trending_up</span>
+</div>
+<div>
+<p class="text-label-md text-outline">Response Efficiency</p>
+<p class="font-bold text-on-surface">+12.4% vs Yesterday</p>
+</div>
+</div>
+<div class="h-16 w-full flex items-end gap-1">
+<div class="flex-grow bg-primary/20 h-1/2 rounded-t-sm"></div>
+<div class="flex-grow bg-primary/20 h-2/3 rounded-t-sm"></div>
+<div class="flex-grow bg-primary/20 h-1/3 rounded-t-sm"></div>
+<div class="flex-grow bg-primary/40 h-3/4 rounded-t-sm"></div>
+<div class="flex-grow bg-primary/40 h-2/3 rounded-t-sm"></div>
+<div class="flex-grow bg-primary h-full rounded-t-sm"></div>
+<div class="flex-grow bg-primary h-5/6 rounded-t-sm"></div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+<!-- FAB for Emergency Actions (Contextual for Hub) -->
+<button class="fixed bottom-8 right-8 w-16 h-16 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50 group" onclick="toggleModal(true)">
+<span class="material-symbols-outlined text-[32px] group-hover:rotate-90 transition-transform">add</span>
+<span class="absolute right-20 bg-on-surface text-surface px-4 py-2 rounded-lg text-label-md font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">New Intel Report</span>
+</button>
+
+<!-- Add New Report Modal (Hidden by default) -->
+<div id="new-report-modal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
+    <div class="bg-surface-container-lowest w-full max-w-md rounded-2xl p-6 shadow-2xl relative transform transition-all">
+        <button onclick="toggleModal(false)" class="absolute top-4 right-4 text-on-surface-variant hover:text-on-surface">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+        <h2 class="text-headline-md font-bold mb-4 text-primary flex items-center gap-2"><span class="material-symbols-outlined">add_circle</span> New Intel Report</h2>
+        <form id="new-report-form" onsubmit="submitReport(event)">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-label-md font-bold mb-1">District / Sector</label>
+                    <select id="report-district" class="w-full bg-surface-container-low border border-outline-variant rounded-lg p-2" required>
+                        <option value="Karachi">Karachi</option>
+                        <option value="Hyderabad">Hyderabad</option>
+                        <option value="Lahore">Lahore</option>
+                        <option value="Rawalpindi">Rawalpindi</option>
+                        <option value="Quetta">Quetta</option>
+                        <option value="Peshawar">Peshawar</option>
+                        <option value="Multan">Multan</option>
+                        <option value="Faisalabad">Faisalabad</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-label-md font-bold mb-1">Operator / Contact Phone</label>
+                    <input id="report-phone" type="text" class="w-full bg-surface-container-low border border-outline-variant rounded-lg p-2" placeholder="e.g. 03001234567" required>
+                </div>
+                <div>
+                    <label class="block text-label-md font-bold mb-1">Intelligence Details</label>
+                    <textarea id="report-message" class="w-full bg-surface-container-low border border-outline-variant rounded-lg p-2 h-24" placeholder="Enter critical observations..." required></textarea>
+                </div>
+                <button type="submit" class="w-full bg-primary text-white font-bold py-3 rounded-lg hover:opacity-90 flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">send</span> Submit Intel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    window.reportData = [];
+
+    function downloadDigest() {
+        if (!window.reportData || window.reportData.length === 0) {
+            alert('No reports available to generate digest.');
+            return;
+        }
+
+        let content = "RescueAI Field Reports Digest\n";
+        content += "Generated: " + new Date().toLocaleString() + "\n";
+        content += "========================================\n\n";
+
+        window.reportData.forEach(report => {
+            content += `District: ${report.district || 'Unknown'}\n`;
+            content += `Contact: ${report.reporter_phone || 'Anonymous'}\n`;
+            content += `Message: ${report.message_text || ''}\n`;
+            content += `Reported At: ${report.reported_at || new Date().toLocaleString()}\n`;
+            content += "----------------------------------------\n";
+        });
+
+        const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "rescueai_field_digest.txt");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function shareReport(id) {
+        event.stopPropagation();
+        const url = window.location.origin + "/report/" + (id || 'mock123');
+        navigator.clipboard.writeText(url).then(() => {
+            alert('Share link copied to clipboard: ' + url);
+        }).catch(err => {
+            console.error('Failed to copy', err);
+        });
+    }
+
+    function toggleModal(show) {
+        const modal = document.getElementById('new-report-modal');
+        if (show) modal.classList.remove('hidden');
+        else modal.classList.add('hidden');
+    }
+
+    async function submitReport(e) {
+        e.preventDefault();
+        const district = document.getElementById('report-district').value;
+        const phone = document.getElementById('report-phone').value;
+        const message = document.getElementById('report-message').value;
+        
+        // Mock coordinates based on district
+        const lat = 25 + Math.random()*5;
+        const lng = 67 + Math.random()*5;
+
+        try {
+            const res = await fetch('/api/reports', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    reporter_phone: phone,
+                    message_text: message,
+                    district: district,
+                    lat: lat,
+                    lng: lng
+                })
+            });
+            
+            if (res.ok) {
+                toggleModal(false);
+                document.getElementById('new-report-form').reset();
+                loadReports(); // Refresh the list
+            } else {
+                alert('Failed to submit report.');
+            }
+        } catch(err) {
+            alert('Error: ' + err.message);
+        }
+    }
+
+    async function loadReports() {
+        const container = document.getElementById('reports-list');
+        try {
+            const res = await fetch('/api/reports');
+            const data = await res.json();
+            const mapContainer = document.getElementById('field-map-container');
+            
+            if (data && data.length > 0) {
+                window.reportData = data;
+                container.innerHTML = '';
+                document.getElementById('active-reports-count').textContent = data.length;
+                document.getElementById('live-count').textContent = data.length + ' LIVE';
+                
+                // Clear old map points (keeping the image)
+                const oldPoints = mapContainer.querySelectorAll('.map-pulse');
+                oldPoints.forEach(p => p.remove());
+
+                data.forEach((report, index) => {
+                    // Create list item
+                    let borderClass = 'border-l-4 border-outline-variant';
+                    let tagClass = 'text-outline bg-surface-container-high';
+                    let tagText = 'INFO';
+                    
+                    if (index % 3 === 0) {
+                        borderClass = 'border-l-4 border-error';
+                        tagClass = 'text-error bg-error-container';
+                        tagText = 'CRITICAL';
+                    } else if (index % 3 === 1) {
+                        borderClass = 'border-l-4 border-tertiary-container';
+                        tagClass = 'text-on-tertiary-container bg-tertiary-container/20';
+                        tagText = 'HIGH PRIORITY';
+                    }
+                    
+                    const timeAgo = Math.floor(Math.random() * 50) + 1; // mock minutes
+
+                    container.innerHTML += `
+                    <article class="p-5 bg-surface-container-low rounded-2xl ${borderClass} hover:shadow-md transition-shadow cursor-pointer">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-[10px] font-extrabold uppercase tracking-widest ${tagClass} px-2 py-0.5 rounded">${tagText}</span>
+                            <span class="text-label-md text-outline">${timeAgo} mins ago</span>
+                        </div>
+                        <h4 class="font-bold text-on-surface mb-2">${report.district || 'Field'} Update</h4>
+                        <p class="text-label-md text-on-surface-variant line-clamp-2 mb-4">${report.message_text}</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs">${(report.reporter_phone || 'Un').substring(0,2)}</div>
+                            <p class="text-label-md font-medium">${report.reporter_phone || 'Anonymous'}</p>
+                            <button class="ml-auto material-symbols-outlined text-outline hover:text-primary" onclick="shareReport('${report._id}')">share</button>
+                        </div>
+                    </article>`;
+                    
+                    // Add random map point for visual feedback
+                    const top = 20 + Math.random() * 60;
+                    const left = 20 + Math.random() * 60;
+                    let colorClass = index % 3 === 0 ? 'bg-error shadow-[0_0_0_0_rgba(186,26,26,0.7)]' : 'bg-primary shadow-[0_0_0_0_rgba(0,92,171,0.7)]';
+                    mapContainer.innerHTML += `<div class="map-pulse absolute ${colorClass} z-10" style="top: ${top}%; left: ${left}%" title="${report.message_text}"></div>`;
+                });
+                
+                document.querySelectorAll('article').forEach(card => {
+                    card.addEventListener('click', () => {
+                        card.classList.add('scale-95');
+                        setTimeout(() => card.classList.remove('scale-95'), 100);
+                    });
+                });
+            } else {
+                container.innerHTML = '<div class="text-center text-outline py-4">No recent reports found.</div>';
+            }
+        } catch(err) {
+            container.innerHTML = '<div class="text-center text-error p-4">Error loading reports: ' + err.message + '</div>';
+            console.log('Error loading reports:', err.message);
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        loadReports();
+        document.documentElement.classList.add('light');
+    });
+</script>
+</body></html>

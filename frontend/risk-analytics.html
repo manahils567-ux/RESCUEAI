@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RescueAI | Risk Analytics</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary": "#ffffff",
+                        "primary": "#005cab",
+                        "on-surface": "#181c22",
+                        "surface-container-high": "#e6e8f1",
+                        "error": "#ba1a1a",
+                        "background": "#f9f9ff",
+                        "secondary-container": "#dfe0e0",
+                        "outline": "#717785",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "surface-dim": "#d8dae3",
+                        "on-tertiary-fixed-variant": "#8b1909",
+                        "primary-fixed": "#d4e3ff",
+                        "surface": "#f9f9ff",
+                        "on-secondary": "#ffffff",
+                        "surface-variant": "#e0e2ec",
+                        "surface-bright": "#f9f9ff",
+                        "tertiary-fixed": "#ffdad4",
+                        "on-primary": "#ffffff",
+                        "on-background": "#181c22",
+                        "secondary": "#5d5f5f",
+                        "primary-fixed-dim": "#a6c8ff",
+                        "on-secondary-fixed-variant": "#454747",
+                        "tertiary-container": "#cb4832",
+                        "surface-container-highest": "#e0e2ec",
+                        "secondary-fixed": "#e2e2e2",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "inverse-on-surface": "#eff0fa",
+                        "on-primary-fixed-variant": "#004786",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed": "#001c3a",
+                        "tertiary": "#a9301d",
+                        "surface-tint": "#005faf",
+                        "on-surface-variant": "#414753",
+                        "on-primary-container": "#fefcff",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "inverse-primary": "#a6c8ff",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb4a6",
+                        "outline-variant": "#c1c6d5",
+                        "surface-container": "#ecedf7",
+                        "surface-container-low": "#f2f3fd",
+                        "inverse-surface": "#2d3038",
+                        "primary-container": "#0075d6",
+                        "on-tertiary-container": "#fffbff",
+                        "on-tertiary-fixed": "#3f0300",
+                        "on-secondary-container": "#616363"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin": "24px",
+                        "gutter": "16px",
+                        "unit": "8px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Outfit"],
+                        "headline-lg": ["Outfit"],
+                        "headline-md": ["Outfit"],
+                        "body-md": ["Outfit"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Outfit', sans-serif; background-color: #f9f9ff; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #c1c6d5; border-radius: 10px; }
+        
+        .timeline-slider-track {
+            background: linear-gradient(to right, #005cab 0%, #005cab var(--percent), #e6e8f1 var(--percent), #e6e8f1 100%);
+        }
+        
+        /* Glassmorphism utility */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const userStr = localStorage.getItem('rescueai_current_user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            const initials = user.fullName.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+            document.querySelectorAll('.user-avatar-initials').forEach(el => el.textContent = initials);
+            document.querySelectorAll('.user-display-name').forEach(el => el.textContent = user.username);
+        }
+    });
+</script>
+</head>
+<body class="bg-background text-on-background min-h-screen">
+<!-- TopNavBar Implementation -->
+<header class="fixed top-0 left-0 w-full h-16 px-6 py-2 flex justify-between items-center bg-surface border-b border-outline-variant z-50">
+<div class="flex items-center gap-8">
+<span class="text-headline-md font-headline-md font-bold text-primary">RescueAI</span>
+<div class="hidden md:flex items-center gap-6">
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden lg:block w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input id="search-district-input" class="w-full bg-surface-container border border-outline-variant rounded-full pl-10 pr-4 py-1.5 text-label-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Search districts..." type="text"/>
+</div>
+<a href="profile.html" class="flex items-center gap-2 hover:bg-surface-container-high p-1 pr-3 rounded-full transition-colors group">
+    <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm user-avatar-initials">JD</div>
+    <span class="text-label-md font-semibold text-on-surface group-hover:text-primary hidden sm:block user-display-name">Operator 42</span>
+</a>
+</div>
+</header>
+<!-- SideNavBar Implementation -->
+<aside class="bg-surface-container-low border-r border-outline-variant flex flex-col h-full w-64 fixed left-0 top-0 pt-16 pb-4 px-3 z-40">
+        <div class="mb-8 px-4 py-6">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center">
+                    <span class="material-symbols-outlined text-on-primary-container">support</span>
+                </div>
+                <div>
+                    <h3 class="font-headline-md text-[18px] text-primary">Operator Console</h3>
+                    <p class="text-on-surface-variant text-[12px]">Pakistan Flood Intelligence</p>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 space-y-1">
+            <a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="dashboard.html">
+                <span class="material-symbols-outlined">map</span>
+                <span class="font-label-md text-label-md">Map</span>
+            </a>
+            <a class="bg-primary-container text-on-primary-container font-semibold flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="risk-analytics.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+                <span class="font-label-md text-label-md">Risk Forecasts</span>
+            </a>
+            <a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="road-status.html">
+                <span class="material-symbols-outlined">traffic</span>
+                <span class="font-label-md text-label-md">Road Status</span>
+            </a>
+            <a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="field-report.html">
+                <span class="material-symbols-outlined">description</span>
+                <span class="font-label-md text-label-md">Field Reports</span>
+            </a>
+            <a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="sms-to-whatsapp.html">
+                <span class="material-symbols-outlined">sync_alt</span>
+                <span class="font-label-md text-label-md">SMS to WhatsApp</span>
+            </a>
+        </nav>
+        <div class="mt-auto space-y-4">
+            <div class="pt-4 border-t border-outline-variant space-y-1">
+                <a class="text-error hover:bg-error-container/20 flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="login.html">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span class="font-label-md text-label-md">Logout</span>
+                </a>
+            </div>
+        </div>
+    </aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 pt-16 min-h-screen">
+<div class="p-6 max-w-[1400px] mx-auto">
+<!-- Timeline Replay Section -->
+<section class="mb-8 p-6 bg-white border border-outline-variant rounded-xl shadow-sm overflow-hidden relative">
+<div class="absolute top-0 right-0 w-48 h-full opacity-5 pointer-events-none">
+
+</div>
+<div class="flex justify-between items-end mb-6 relative z-10">
+<div>
+<h1 class="font-headline-md text-headline-md text-on-surface mb-1">Timeline Replay</h1>
+<p class="text-on-surface-variant font-body-md">Reviewing historical impact data from the 2022 Monsoon Event.</p>
+</div>
+<div class="flex gap-2">
+<button id="replay-play-btn" class="p-2 border border-outline-variant rounded-lg hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">play_arrow</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container-highest border border-outline-variant rounded-lg text-label-md font-semibold">
+<span class="material-symbols-outlined text-primary">calendar_month</span>
+<span>June - Sept 2022</span>
+</button>
+</div>
+</div>
+<div class="relative px-2 pb-8">
+<input class="w-full h-1.5 bg-surface-container-high rounded-full appearance-none cursor-pointer accent-primary timeline-slider" max="100" min="0" type="range" value="45"/>
+<div class="flex justify-between mt-4 px-1 text-[11px] font-bold text-outline uppercase tracking-widest">
+<span>25 Jun</span>
+<span>10 Jul</span>
+<span>1 Aug</span>
+<span>15 Aug</span>
+<span class="text-error underline underline-offset-4">25 Aug</span>
+<span>5 Sep</span>
+<span>20 Sep</span>
+</div>
+</div>
+</section>
+<!-- Dashboard Bento Grid -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Top High-Risk Districts (Card 1 - 4/12) -->
+<div class="col-span-12 lg:col-span-4 flex flex-col bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm h-[600px]">
+<div class="p-4 border-b border-outline-variant flex justify-between items-center bg-surface-container-low">
+<h3 class="font-headline-md text-label-md font-bold text-on-surface">Top High-Risk Districts</h3>
+<span class="text-[10px] bg-tertiary-fixed text-on-tertiary-fixed-variant px-2 py-0.5 rounded font-bold uppercase">Critical Priority</span>
+</div>
+<div id="risk-districts-container" class="p-4 flex-1 space-y-4 overflow-y-auto">
+<div class="text-center text-on-surface-variant p-4">Loading districts from API...</div>
+</div>
+</div>
+<!-- Gauge Predictions (Card 2 - 8/12) -->
+<div class="col-span-12 lg:col-span-8 bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm flex flex-col h-[600px]">
+<div class="p-4 border-b border-outline-variant flex justify-between items-center bg-surface-container-low">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">waves</span>
+<h3 class="font-headline-md text-label-md font-bold text-on-surface">Gauge Predictions: Indus at Taunsa Barrage</h3>
+</div>
+<div class="flex gap-2">
+<button id="btn-12h" class="time-btn px-3 py-1 text-[12px] font-bold border border-outline-variant rounded-md bg-white">12h</button>
+<button id="btn-72h" class="time-btn px-3 py-1 text-[12px] font-bold border border-primary text-primary rounded-md bg-primary/5">72h</button>
+<button id="btn-7d" class="time-btn px-3 py-1 text-[12px] font-bold border border-outline-variant rounded-md bg-white">7d</button>
+</div>
+</div>
+<div class="p-6 flex-1 flex flex-col justify-between">
+<div class="flex items-baseline gap-4 mb-4">
+<span id="gauge-value" class="text-4xl font-extrabold text-on-surface">645,000 <span class="text-headline-md font-normal text-on-surface-variant">cusecs</span></span>
+<span class="flex items-center gap-1 text-error font-bold">
+<span class="material-symbols-outlined">arrow_upward</span>
+                                +4.2% Discharge Rate
+                            </span>
+</div>
+<!-- Prediction Graph Area -->
+<div class="relative h-64 w-full bg-surface-container-low rounded-lg p-4 border border-outline-variant/30">
+<!-- Simple SVG Visualization for the Graph -->
+<svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 800 200">
+<defs>
+<linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#005cab" stop-opacity="0.2"></stop>
+<stop offset="100%" stop-color="#005cab" stop-opacity="0"></stop>
+</linearGradient>
+</defs>
+<path d="M0 150 Q 100 140, 200 160 T 400 100 T 600 50 L 800 20" fill="none" stroke="#005cab" stroke-width="3"></path>
+<path d="M0 150 Q 100 140, 200 160 T 400 100 T 600 50 L 800 20 V 200 H 0 Z" fill="url(#chartGradient)"></path>
+<!-- Vertical Grid Lines -->
+<line stroke="#c1c6d5" stroke-dasharray="4" x1="200" x2="200" y1="0" y2="200"></line>
+<line stroke="#c1c6d5" stroke-dasharray="4" x1="400" x2="400" y1="0" y2="200"></line>
+<line stroke="#c1c6d5" stroke-dasharray="4" x1="600" x2="600" y1="0" y2="200"></line>
+<!-- Points -->
+<circle cx="400" cy="100" fill="#005cab" r="4"></circle>
+<text fill="#005cab" font-size="12" font-weight="bold" x="410" y="95">Current</text>
+</svg>
+<div class="flex justify-between mt-2 text-[10px] text-outline font-bold uppercase">
+<span>-24h</span>
+<span>-12h</span>
+<span>Current</span>
+<span>+24h</span>
+<span>+48h</span>
+<span class="text-primary">+72h (Projection)</span>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</main>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- BACKEND INTEGRATION SCRIPTS                                    -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<script>
+const API_BASE = 'http://localhost:5000/api';
+
+// ─── LOAD RISK SCORES FROM BACKEND ───────────────────────────
+async function loadRiskDistricts() {
+  try {
+    const res = await fetch(`${API_BASE}/risk`);
+    const data = await res.json();
+    if (data.length > 0) {
+      const container = document.getElementById('risk-districts-container');
+      container.innerHTML = '';
+
+      // Sort by score descending and show top 8
+      const topDistricts = data.sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 8);
+      const icons = ['trending_up', 'warning', 'history', 'waves', 'water_drop', 'monitor_heart', 'crisis_alert', 'storm'];
+
+      topDistricts.forEach((risk, i) => {
+        const pct = Math.round(risk.score || 0);
+        let riskTierText = pct > 80 ? 'Critical risk tier' : pct > 50 ? 'Elevated risk tier' : 'Moderate risk tier';
+        let barColor = pct > 80 ? 'bg-error' : pct > 50 ? 'bg-tertiary-container text-on-tertiary-container' : 'bg-primary';
+
+        container.innerHTML += `
+          <div class="p-3 rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors border border-transparent hover:border-outline-variant cursor-pointer">
+            <div class="flex justify-between items-center mb-2">
+              <span class="font-semibold text-on-surface flex items-center gap-2">
+                <span class="text-outline text-xs">${i+1}</span> ${risk.district || 'Unknown'}
+              </span>
+              <span class="${pct > 80 ? 'text-error' : 'text-primary'} font-bold">${pct} Risk</span>
+            </div>
+            <div class="w-full h-1.5 bg-outline-variant rounded-full overflow-hidden">
+              <div class="h-full ${barColor}" style="width:${pct}%"></div>
+            </div>
+          </div>`;
+      });
+    }
+  } catch (err) {
+    console.log('Risk API not available, using default data:', err.message);
+  }
+}
+
+// ─── LOAD GAUGE DATA FROM BACKEND ────────────────────────────
+async function loadGaugeData() {
+  try {
+    const res = await fetch(`${API_BASE}/river-gauges`);
+    const data = await res.json();
+    if (data.length > 0) {
+      const latest = data[0];
+      const reading = latest.reading || latest.discharge || 645000;
+      const gaugeEl = document.getElementById('gauge-value');
+      if (gaugeEl) {
+        gaugeEl.innerHTML = `${Number(reading).toLocaleString()} <span class="text-headline-md font-normal text-on-surface-variant">cusecs</span>`;
+      }
+    }
+  } catch (err) {
+    console.log('Gauge API not available:', err.message);
+  }
+}
+
+// ─── TIMELINE REPLAY (connected to /api/replay) ─────────────
+async function loadReplayData(percent) {
+  try {
+    // Map slider percent (0-100) to date range June 25 – Sept 20 2022
+    const startDate = new Date('2022-06-25');
+    const endDate = new Date('2022-09-20');
+    const range = endDate - startDate;
+    const targetDate = new Date(startDate.getTime() + (percent / 100) * range);
+    targetDate.setUTCHours(0, 0, 0, 0); // Truncate to midnight to match historical DB entries
+    const timestamp = targetDate.toISOString();
+
+    const res = await fetch(`${API_BASE}/replay?timestamp=${timestamp}`);
+    const data = await res.json();
+    console.log(`Replay at ${timestamp}: ${data.floods?.length || 0} floods, ${data.riskScores?.length || 0} risk scores`);
+
+    // Update the UI with the historical replay data!
+    const container = document.getElementById('risk-districts-container');
+    container.innerHTML = '';
+    
+    if (data.riskScores && data.riskScores.length > 0) {
+      // Group by district to get latest/max score per district for that timestamp
+      const districtMap = {};
+      data.riskScores.forEach(r => {
+        if (!districtMap[r.district] || r.score > districtMap[r.district].score) {
+          districtMap[r.district] = r;
+        }
+      });
+      
+      const topDistricts = Object.values(districtMap)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 8);
+        
+      topDistricts.forEach((risk, i) => {
+        const pct = Math.round(risk.score || 0);
+        let riskTierText = pct > 80 ? 'Critical risk tier' : pct > 50 ? 'Elevated risk tier' : 'Moderate risk tier';
+        let barColor = pct > 80 ? 'bg-error' : pct > 50 ? 'bg-tertiary-container' : 'bg-primary';
+
+        container.innerHTML += `
+          <div class="p-3 rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors border border-transparent hover:border-outline-variant cursor-pointer">
+            <div class="flex justify-between items-center mb-2">
+              <span class="font-semibold text-on-surface flex items-center gap-2">
+                <span class="text-outline text-xs">${i+1}</span> ${risk.district || 'Unknown'} <span class="text-[10px] text-outline font-normal">(Historical)</span>
+              </span>
+              <span class="${pct > 80 ? 'text-error' : 'text-primary'} font-bold">${pct} Risk</span>
+            </div>
+            <div class="w-full h-1.5 bg-outline-variant rounded-full overflow-hidden">
+              <div class="h-full ${barColor}" style="width:${pct}%"></div>
+            </div>
+          </div>`;
+      });
+    } else {
+      container.innerHTML = '<div class="text-center text-outline p-4">No historical data found for this date.</div>';
+    }
+
+    // Update the gauge with a simulated historical value based on the timeline
+    const gaugeEl = document.getElementById('gauge-value');
+    if (gaugeEl) {
+      // Simulate historical gauge peak around August 20 (percent ~ 65%)
+      const peakPercent = 65;
+      const intensity = 1 - Math.min(1, Math.abs(percent - peakPercent) / 30);
+      const historicalReading = 300000 + (intensity * 450000); // Peaks at 750k
+      gaugeEl.innerHTML = `${Number(Math.round(historicalReading)).toLocaleString()} <span class="text-headline-md font-normal text-on-surface-variant">cusecs (Replay)</span>`;
+    }
+
+  } catch (err) {
+    console.log('Replay API not available:', err.message);
+  }
+}
+
+// ─── INIT ────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  loadRiskDistricts();
+  loadGaugeData();
+
+  // Auto-refresh every 30 seconds
+  setInterval(() => {
+    loadRiskDistricts();
+    loadGaugeData();
+  }, 30000);
+
+  // Interactive Slider Logic
+  const slider = document.querySelector('.timeline-slider');
+  if (slider) {
+    slider.addEventListener('input', (e) => {
+      const percent = (e.target.value - e.target.min) / (e.target.max - e.target.min) * 100;
+      e.target.style.setProperty('--percent', percent + '%');
+
+      const timelineHeader = document.querySelector('h1');
+      if (percent > 60) {
+        timelineHeader.classList.add('text-tertiary');
+      } else {
+        timelineHeader.classList.remove('text-tertiary');
+      }
+    });
+    slider.dispatchEvent(new Event('input'));
+
+    // Load replay data on slider change (debounced)
+    let replayTimeout;
+    slider.addEventListener('input', (e) => {
+      clearTimeout(replayTimeout);
+      replayTimeout = setTimeout(() => loadReplayData(Number(e.target.value)), 100);
+    });
+  }
+
+  // Prediction Buttons Logic
+  const timeBtns = document.querySelectorAll('.time-btn');
+  timeBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      timeBtns.forEach(b => {
+        b.className = 'time-btn px-3 py-1 text-[12px] font-bold border border-outline-variant rounded-md bg-white text-on-surface';
+      });
+      e.target.className = 'time-btn px-3 py-1 text-[12px] font-bold border border-primary text-primary rounded-md bg-primary/5';
+      
+      // Simulate chart update
+      const path = document.querySelector('svg path');
+      if (path) {
+        path.style.opacity = '0.5';
+        setTimeout(() => path.style.opacity = '1', 300);
+      }
+    });
+  });
+
+  // Simulating dynamic discharge data
+  setInterval(() => {
+    const dischargeValue = document.getElementById('gauge-value');
+    if (dischargeValue) {
+      // only wiggle if it's the base value 645000 (not replay)
+      if (dischargeValue.textContent.includes('645,000')) {
+        const currentVal = 645000;
+        const variance = Math.floor(Math.random() * 200) - 100;
+        const newVal = currentVal + variance;
+        dischargeValue.innerHTML = `${newVal.toLocaleString()} <span class="text-headline-md font-normal text-on-surface-variant">cusecs</span>`;
+      }
+    }
+  }, 3000);
+
+  // DISTRICT SEARCH LOGIC
+  const searchInput = document.getElementById('search-district-input');
+  if (searchInput) {
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && searchInput.value.trim() !== '') {
+        const newDistrict = searchInput.value.trim();
+        
+        // Update Gauge Prediction Title
+        const gaugeTitle = document.querySelector('h3.font-headline-md.text-label-md');
+        if (gaugeTitle && gaugeTitle.textContent.includes('Gauge Predictions')) {
+          gaugeTitle.textContent = `Gauge Predictions: ${newDistrict} Area`;
+        }
+        
+        // Simulate chart update
+        const path = document.querySelector('svg path');
+        if (path) {
+          path.style.opacity = '0.5';
+          setTimeout(() => path.style.opacity = '1', 300);
+        }
+        
+        // Clear input and blur
+        searchInput.value = '';
+        searchInput.blur();
+      }
+    });
+  }
+});
+</script>
+</body></html>

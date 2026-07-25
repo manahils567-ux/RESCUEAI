@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>RescueAI | Agent Sign-In</title>
+    <meta name="description" content="Sign in to the RescueAI intelligence dashboard for flood monitoring, emergency alerts, and community protection.">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#ffdad4",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "on-primary-container": "#fefcff",
+                        "tertiary-fixed-dim": "#ffb4a6",
+                        "surface-container": "#ecedf7",
+                        "primary-fixed": "#d4e3ff",
+                        "on-tertiary-fixed": "#3f0300",
+                        "error": "#ba1a1a",
+                        "inverse-surface": "#2d3038",
+                        "secondary": "#5d5f5f",
+                        "surface-tint": "#005faf",
+                        "secondary-fixed": "#e2e2e2",
+                        "surface-variant": "#e0e2ec",
+                        "on-surface-variant": "#414753",
+                        "surface-dim": "#d8dae3",
+                        "surface-container-low": "#f2f3fd",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#a6c8ff",
+                        "error-container": "#ffdad6",
+                        "tertiary-container": "#cb4832",
+                        "on-secondary-fixed-variant": "#454747",
+                        "on-secondary-container": "#616363",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#c1c6d5",
+                        "tertiary": "#a9301d",
+                        "on-primary": "#ffffff",
+                        "outline": "#717785",
+                        "surface-container-high": "#e6e8f1",
+                        "surface": "#f9f9ff",
+                        "on-surface": "#181c22",
+                        "primary-container": "#0075d6",
+                        "on-background": "#181c22",
+                        "secondary-container": "#dfe0e0",
+                        "on-primary-fixed-variant": "#004786",
+                        "on-tertiary-fixed-variant": "#8b1909",
+                        "on-primary-fixed": "#001c3a",
+                        "on-error-container": "#93000a",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#005cab",
+                        "background": "#f9f9ff",
+                        "inverse-on-surface": "#eff0fa",
+                        "surface-bright": "#f9f9ff",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "surface-container-highest": "#e0e2ec",
+                        "on-tertiary-container": "#fffbff",
+                        "primary-fixed-dim": "#a6c8ff",
+                        "on-error": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "margin": "24px",
+                        "container-max": "1280px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Outfit"],
+                        "label-md": ["Outfit"],
+                        "headline-md": ["Outfit"],
+                        "body-md": ["Outfit"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f9f9ff;
+            color: #181c22;
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .bg-subtle-pattern {
+            background-color: #f9f9ff;
+            background-image: radial-gradient(#005cab08 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md min-h-screen flex flex-col bg-surface-bright">
+
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-8 md:px-16 lg:px-20 h-16 sticky top-0 z-50 bg-surface-bright border-b border-outline-variant">
+    <div class="flex items-center gap-2">
+        <a href="index.html" class="text-headline-md font-headline-md text-primary font-bold tracking-tight hover:opacity-80 transition-opacity">RescueAI</a>
+    </div>
+    <div class="flex items-center gap-unit px-3 py-1.5 rounded-full bg-surface-container-low border border-outline-variant">
+        <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+        <span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Network Secure</span>
+    </div>
+</header>
+
+<main class="flex-grow flex items-center justify-center px-8 md:px-16 lg:px-20 py-12 relative overflow-hidden" style="background-color: rgb(255, 255, 255);">
+    <!-- Login Container -->
+    <div class="w-full max-w-[480px]">
+        <div class="glass-card p-10 rounded-xl shadow-lg border" style="background: rgb(255, 255, 255); border: 1px solid rgb(224, 226, 236);">
+            <!-- Branding Context -->
+            <div class="mb-10 text-center">
+                <h1 class="font-headline-lg text-headline-lg text-on-surface mb-2 tracking-tight">Agent &amp; Volunteer Login</h1>
+                <p class="text-on-surface-variant text-body-md">Enter your credentials to access the intelligence dashboard.</p>
+            </div>
+
+            <!-- Success banner (shown after registration redirect) -->
+            <div id="register-success" class="hidden mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center gap-3">
+                <span class="material-symbols-outlined text-emerald-600">check_circle</span>
+                <p class="text-emerald-700 text-sm font-medium">Account created successfully! Please sign in.</p>
+            </div>
+
+            <form id="login-form" class="space-y-6">
+                <!-- Email / Username / Phone Field -->
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface mb-2" for="email">Email, Username, or Phone</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-outline">
+                            <span class="material-symbols-outlined">person</span>
+                        </div>
+                        <input class="block w-full pl-10 pr-3 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none" id="email" name="email" placeholder="Email, username, or phone" type="text" required>
+                    </div>
+                    <p id="email-error" class="text-red-500 text-xs mt-1 hidden"></p>
+                </div>
+
+                <!-- Password Field -->
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block font-label-md text-label-md text-on-surface" for="password">Password</label>
+                        <a class="font-label-md text-label-md text-primary hover:underline transition-all" href="#">Forgot Password?</a>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-outline">
+                            <span class="material-symbols-outlined">lock</span>
+                        </div>
+                        <input class="block w-full pl-10 pr-3 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none" id="password" name="password" placeholder="••••••••" type="password" required>
+                    </div>
+                    <p id="password-error" class="text-red-500 text-xs mt-1 hidden"></p>
+                </div>
+
+                <!-- Options -->
+                <div class="flex items-center">
+                    <input class="h-4 w-4 text-primary focus:ring-primary border-outline-variant rounded" id="remember-me" name="remember-me" type="checkbox">
+                    <label class="ml-2 block font-label-md text-label-md text-on-surface-variant" for="remember-me">
+                        Keep me signed in
+                    </label>
+                </div>
+
+                <!-- Submit -->
+                <button class="w-full flex items-center justify-center gap-2 px-6 py-4 bg-primary text-on-primary font-bold rounded-lg hover:bg-primary-container transition-all active:scale-[0.98] duration-150" type="submit" id="login-submit-btn">
+                    Sign In
+                    <span class="material-symbols-outlined">arrow_forward</span>
+                </button>
+            </form>
+
+            <div class="my-8 flex items-center gap-4">
+                <div class="flex-grow h-px bg-outline-variant"></div>
+                <span class="font-label-md text-label-md text-outline uppercase tracking-widest">OR</span>
+                <div class="flex-grow h-px bg-outline-variant"></div>
+            </div>
+
+            <!-- SSO Action -->
+            <button id="sso-btn" class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-white/50 text-on-surface border border-white/30 font-semibold rounded-lg hover:bg-white/80 transition-all active:scale-[0.98]">
+                <span class="material-symbols-outlined">key</span>
+                Sign in with SSO
+            </button>
+
+            <div class="mt-8 text-center">
+                <p class="text-on-surface-variant font-label-md text-label-md">
+                    New volunteer? 
+                    <a class="text-primary hover:underline font-semibold transition-all ml-1" href="signup.html">Register for alerts here</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="w-full px-8 md:px-16 lg:px-20 h-16 flex flex-col md:flex-row justify-between items-center border-t border-outline-variant bg-surface-bright text-on-surface-variant font-label-md text-label-md">
+    <div class="flex items-center gap-2 mb-2 md:mb-0">
+        <span class="font-bold text-on-surface">RESCUEAI</span>
+        <span class="text-outline">•</span>
+        <span class="tracking-widest uppercase opacity-70">Live Intelligence Sync</span>
+    </div>
+    <nav class="flex items-center gap-gutter">
+        <a class="hover:text-primary transition-colors" href="#">Data Sources</a>
+        <a class="hover:text-primary transition-colors" href="#">Privacy</a>
+        <a class="hover:text-primary transition-colors" href="#">Terms</a>
+    </nav>
+</footer>
+
+<script>
+    // Show success banner if redirected from signup
+    if (window.location.search.includes('registered=1')) {
+        document.getElementById('register-success').classList.remove('hidden');
+        // Clean up URL
+        window.history.replaceState({}, '', 'login.html');
+    }
+
+    // Utility: show/hide error
+    function showError(id, msg) {
+        const el = document.getElementById(id);
+        el.textContent = msg;
+        el.classList.remove('hidden');
+    }
+    function clearError(id) {
+        const el = document.getElementById(id);
+        el.textContent = '';
+        el.classList.add('hidden');
+    }
+
+    // Get stored users from localStorage
+    function getUsers() {
+        return JSON.parse(localStorage.getItem('rescueai_users') || '[]');
+    }
+
+    // Find user by email, username, or phone
+    function findUser(identifier) {
+        const users = getUsers();
+        const lower = identifier.toLowerCase();
+        return users.find(u =>
+            u.email.toLowerCase() === lower ||
+            u.username.toLowerCase() === lower ||
+            u.phone === identifier ||
+            u.phone === '+92' + identifier.replace(/[\s-]/g, '')
+        );
+    }
+
+    // Clear errors on input
+    document.getElementById('email').addEventListener('input', () => clearError('email-error'));
+    document.getElementById('password').addEventListener('input', () => clearError('password-error'));
+
+    // Form submit with validation
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        let valid = true;
+
+        const emailVal = document.getElementById('email').value.trim();
+        const passVal = document.getElementById('password').value;
+
+        // Field presence check
+        if (!emailVal) {
+            showError('email-error', 'Email, username, or phone is required.');
+            valid = false;
+        }
+
+        if (!passVal) {
+            showError('password-error', 'Password is required.');
+            valid = false;
+        } else if (passVal.length < 6) {
+            showError('password-error', 'Password must be at least 6 characters.');
+            valid = false;
+        }
+
+        if (!valid) return;
+
+        // Check if any users exist
+        const users = getUsers();
+        if (users.length === 0) {
+            showError('email-error', 'No accounts found. Please create an account first.');
+            return;
+        }
+
+        // Find matching user
+        const user = findUser(emailVal);
+        if (!user) {
+            showError('email-error', 'No account found with this email, username, or phone.');
+            return;
+        }
+
+        // Check password
+        if (user.password !== passVal) {
+            showError('password-error', 'Incorrect password. Please try again.');
+            return;
+        }
+
+        // SUCCESS — store logged-in user session
+        localStorage.setItem('rescueai_current_user', JSON.stringify(user));
+
+        const btn = document.getElementById('login-submit-btn');
+        const originalContent = btn.innerHTML;
+
+        btn.disabled = true;
+        btn.innerHTML = `<span class="material-symbols-outlined animate-spin">progress_activity</span> Authenticating...`;
+
+        setTimeout(() => {
+            btn.innerHTML = `<span class="material-symbols-outlined">check_circle</span> Welcome, ${user.fullName}!`;
+            btn.classList.replace('bg-primary', 'bg-emerald-600');
+
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 2500);
+        }, 1500);
+    });
+</script>
+
+</body>
+</html>

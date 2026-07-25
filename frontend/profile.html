@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RescueAI | Operator Profile</title>
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                "colors": {
+                    "primary": "#005cab",
+                    "on-surface": "#181c22",
+                    "surface-container-high": "#e6e8f1",
+                    "error": "#ba1a1a",
+                    "background": "#f9f9ff",
+                    "outline": "#717785",
+                    "surface-dim": "#d8dae3",
+                    "primary-fixed": "#d4e3ff",
+                    "surface": "#f9f9ff",
+                    "surface-container-low": "#f2f3fd",
+                    "primary-container": "#0075d6",
+                    "on-surface-variant": "#414753",
+                    "surface-container-lowest": "#ffffff"
+                },
+                "fontFamily": {
+                    "label-md": ["Outfit"],
+                    "headline-lg": ["Outfit"],
+                    "headline-md": ["Outfit"],
+                    "body-md": ["Outfit"]
+                }
+            }
+        }
+    }
+</script>
+<style>
+    body { font-family: 'Outfit', sans-serif; }
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #c1c6d5; border-radius: 10px; }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const userStr = localStorage.getItem('rescueai_current_user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            const initials = user.fullName.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+            document.querySelectorAll('.user-avatar-initials').forEach(el => el.textContent = initials);
+            document.querySelectorAll('.user-display-name').forEach(el => el.textContent = user.username);
+        }
+    });
+</script>
+</head>
+<body class="bg-background text-on-surface flex flex-col h-screen overflow-hidden">
+<!-- TopNavBar Implementation -->
+<header class="fixed top-0 left-0 w-full h-16 px-6 py-2 flex justify-between items-center bg-surface border-b border-outline-variant z-50">
+    <div class="flex items-center gap-8">
+        <span class="text-headline-md font-headline-md font-bold text-primary">RescueAI</span>
+    </div>
+    <div class="flex items-center gap-4">
+        <div class="relative hidden lg:block w-64">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+            <input id="search-district-input" class="w-full bg-surface-container border border-outline-variant rounded-full pl-10 pr-4 py-1.5 text-label-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Search..." type="text">
+        </div>
+    </div>
+</header>
+<!-- Main Content Area -->
+<div class="flex flex-1 pt-16 h-full overflow-hidden">
+    <!-- SideNavBar -->
+    <aside class="bg-surface-container-low border-r border-outline-variant flex flex-col h-full w-64 fixed left-0 top-0 pt-16 pb-4 px-3 z-40">
+        <div class="mb-8 px-4 py-6">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center">
+                    <span class="material-symbols-outlined text-on-primary-container">support</span>
+                </div>
+                <div>
+                    <h3 class="font-headline-md text-[18px] text-primary">Operator Console</h3>
+                    <p class="text-on-surface-variant text-[12px]">Pakistan Flood Intelligence</p>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 space-y-1">
+            <a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="dashboard.html">
+                <span class="material-symbols-outlined">map</span>
+                <span class="font-label-md text-label-md">Map</span>
+            </a>
+            <a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="risk-analytics.html">
+                <span class="material-symbols-outlined">analytics</span>
+                <span class="font-label-md text-label-md">Risk Forecasts</span>
+            </a>
+            <a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="road-status.html">
+                <span class="material-symbols-outlined">traffic</span>
+                <span class="font-label-md text-label-md">Road Status</span>
+            </a>
+            <a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="field-report.html">
+                <span class="material-symbols-outlined">description</span>
+                <span class="font-label-md text-label-md">Field Reports</span>
+            </a>
+            <a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="sms-to-whatsapp.html">
+                <span class="material-symbols-outlined">sync_alt</span>
+                <span class="font-label-md text-label-md">SMS to WhatsApp</span>
+            </a>
+        </nav>
+        <div class="mt-auto space-y-4">
+            <div class="pt-4 border-t border-outline-variant space-y-1">
+                <a class="text-error hover:bg-error-container/20 flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="login.html">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span class="font-label-md text-label-md">Logout</span>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Canvas -->
+    <main class="ml-64 flex-1 flex flex-col items-center overflow-y-auto bg-surface-dim p-8">
+        <div class="w-full max-w-3xl space-y-6 mt-8">
+            <h1 class="text-3xl font-bold text-on-surface">Operator Profile</h1>
+            
+            <!-- Profile Card -->
+            <div class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant p-8 flex flex-col md:flex-row items-center md:items-start gap-8">
+                <div class="flex-shrink-0 relative">
+                    <div id="profile-avatar" class="w-32 h-32 bg-primary rounded-full flex items-center justify-center text-4xl text-white font-bold shadow-lg">JD</div>
+                    <div class="absolute bottom-2 right-2 w-5 h-5 bg-green-500 border-2 border-white rounded-full"></div>
+                </div>
+                <div class="flex-grow text-center md:text-left">
+                    <h2 id="profile-name" class="text-2xl font-bold text-on-surface">John Doe</h2>
+                    <p id="profile-username" class="text-primary font-semibold tracking-wide">Operator 42</p>
+                    <p class="text-on-surface-variant mt-4 leading-relaxed max-w-lg">Assigned to the National Crisis Hub. Authorized to dispatch ground assets and view Level-3 restricted satellite imagery across the Indus River Basin.</p>
+                    <div class="mt-6 flex flex-wrap gap-3 justify-center md:justify-start">
+                        <button onclick="editProfile()" class="bg-primary text-white px-6 py-2 rounded-lg font-semibold hover:bg-primary/90 transition-colors shadow flex items-center gap-2"><span class="material-symbols-outlined text-sm">edit</span> Edit Profile</button>
+                        <button onclick="resetPassword()" class="bg-surface-container text-on-surface px-6 py-2 rounded-lg font-semibold border border-outline-variant hover:bg-surface-container-high transition-colors shadow flex items-center gap-2"><span class="material-symbols-outlined text-sm">key</span> Reset Password</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats/Info Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Contact Info -->
+                <div class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant p-6">
+                    <h3 class="text-lg font-bold text-on-surface flex items-center gap-2 mb-4"><span class="material-symbols-outlined text-primary">contact_mail</span> Contact Details</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-[11px] font-bold uppercase tracking-wider text-outline mb-1">Email Address</p>
+                            <p id="profile-email" class="font-medium text-on-surface">johndoe.operator42@rescueai.gov.pk</p>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-bold uppercase tracking-wider text-outline mb-1">Secure Phone</p>
+                            <p id="profile-phone" class="font-medium text-on-surface">+92 300 1234567</p>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-bold uppercase tracking-wider text-outline mb-1">Assigned Region</p>
+                            <p id="profile-district" class="font-medium text-on-surface">Punjab</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Metrics -->
+                <div class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant p-6">
+                    <h3 class="text-lg font-bold text-on-surface flex items-center gap-2 mb-4"><span class="material-symbols-outlined text-primary">assignment_turned_in</span> System Metrics</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-surface-container rounded-xl">
+                            <span class="font-medium text-on-surface">Reports Resolved</span>
+                            <span class="font-bold text-primary text-xl">1,402</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-surface-container rounded-xl">
+                            <span class="font-medium text-on-surface">Active Dispatch Commands</span>
+                            <span class="font-bold text-primary text-xl">08</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-surface-container rounded-xl">
+                            <span class="font-medium text-on-surface">Last Login</span>
+                            <span class="font-medium text-on-surface-variant">Today, 08:32 AM</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- System Preferences -->
+            <div class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant p-6 mb-8">
+                <h3 class="text-lg font-bold text-on-surface flex items-center gap-2 mb-4"><span class="material-symbols-outlined text-primary">settings</span> System Preferences</h3>
+                <div class="divide-y divide-outline-variant">
+                    <div class="py-4 flex justify-between items-center">
+                        <div>
+                            <p class="font-semibold text-on-surface">SMS Notification Sync</p>
+                            <p class="text-sm text-on-surface-variant">Receive automated SMS alerts for critical field updates.</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" value="" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                    </div>
+                    <div class="py-4 flex justify-between items-center">
+                        <div>
+                            <p class="font-semibold text-on-surface">High Contrast Mode</p>
+                            <p class="text-sm text-on-surface-variant">Enhance map visibility for low-light operator environments.</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" value="" class="sr-only peer">
+                            <div class="w-11 h-6 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- Edit Profile Modal -->
+<div id="edit-profile-modal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
+    <div class="bg-surface-container-lowest w-full max-w-md rounded-2xl p-6 shadow-2xl relative transform transition-all">
+        <button onclick="toggleEditModal(false)" class="absolute top-4 right-4 text-on-surface-variant hover:text-on-surface">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+        <h2 class="text-headline-md font-bold mb-4 text-primary">Edit Profile</h2>
+        <form id="edit-profile-form" onsubmit="saveProfile(event)">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-label-md font-bold mb-1">Full Name</label>
+                    <input id="edit-name" type="text" class="w-full bg-surface-container-low border border-outline-variant rounded-lg p-2" required>
+                </div>
+                <div>
+                    <label class="block text-label-md font-bold mb-1">Phone Number</label>
+                    <input id="edit-phone" type="text" class="w-full bg-surface-container-low border border-outline-variant rounded-lg p-2" required>
+                </div>
+                <div>
+                    <label class="block text-label-md font-bold mb-1">District / Region</label>
+                    <select id="edit-district" class="w-full bg-surface-container-low border border-outline-variant rounded-lg p-2" required>
+                        <option value="Sindh">Sindh</option>
+                        <option value="Punjab">Punjab</option>
+                        <option value="Balochistan">Balochistan</option>
+                        <option value="KPK">KPK</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-primary text-white font-bold py-3 rounded-lg hover:opacity-90">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function loadProfile() {
+        let userStr = localStorage.getItem('rescueai_current_user');
+        if (!userStr) {
+            // Mock a user if not logged in so UI remains interactive
+            const mockUser = {
+                fullName: "John Doe",
+                username: "Operator 42",
+                email: "johndoe.operator42@rescueai.gov.pk",
+                phone: "+92 300 1234567",
+                district: "Punjab"
+            };
+            localStorage.setItem('rescueai_current_user', JSON.stringify(mockUser));
+            userStr = JSON.stringify(mockUser);
+        }
+        
+        const user = JSON.parse(userStr);
+        const initials = user.fullName.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+        
+        document.getElementById('profile-avatar').textContent = initials;
+        document.getElementById('profile-name').textContent = user.fullName;
+        document.getElementById('profile-username').textContent = user.username + ' • Duty Manager';
+        document.getElementById('profile-email').textContent = user.email;
+        document.getElementById('profile-phone').textContent = user.phone;
+        document.getElementById('profile-district').textContent = user.district || 'Punjab';
+    }
+
+    function editProfile() {
+        const user = JSON.parse(localStorage.getItem('rescueai_current_user') || '{}');
+        document.getElementById('edit-name').value = user.fullName || '';
+        document.getElementById('edit-phone').value = user.phone || '';
+        document.getElementById('edit-district').value = user.district || 'Punjab';
+        toggleEditModal(true);
+    }
+
+    function toggleEditModal(show) {
+        const modal = document.getElementById('edit-profile-modal');
+        if (show) modal.classList.remove('hidden');
+        else modal.classList.add('hidden');
+    }
+
+    function saveProfile(e) {
+        e.preventDefault();
+        const userStr = localStorage.getItem('rescueai_current_user');
+        if (!userStr) return;
+        
+        const user = JSON.parse(userStr);
+        user.fullName = document.getElementById('edit-name').value;
+        user.phone = document.getElementById('edit-phone').value;
+        user.district = document.getElementById('edit-district').value;
+        
+        // Save current user
+        localStorage.setItem('rescueai_current_user', JSON.stringify(user));
+        
+        // Update in users array
+        const users = JSON.parse(localStorage.getItem('rescueai_users') || '[]');
+        const index = users.findIndex(u => u.username === user.username);
+        if (index !== -1) {
+            users[index] = user;
+            localStorage.setItem('rescueai_users', JSON.stringify(users));
+        }
+        
+        toggleEditModal(false);
+        loadProfile();
+        
+        // Update headers immediately
+        const initials = user.fullName.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+        document.querySelectorAll('.user-avatar-initials').forEach(el => el.textContent = initials);
+        document.querySelectorAll('.user-display-name').forEach(el => el.textContent = user.username);
+    }
+
+    function resetPassword() {
+        const newPassword = prompt("Enter a new password for your account:");
+        if (newPassword && newPassword.length >= 6) {
+            const userStr = localStorage.getItem('rescueai_current_user');
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                user.password = newPassword;
+                localStorage.setItem('rescueai_current_user', JSON.stringify(user));
+                
+                const users = JSON.parse(localStorage.getItem('rescueai_users') || '[]');
+                const index = users.findIndex(u => u.username === user.username);
+                if (index !== -1) {
+                    users[index] = user;
+                    localStorage.setItem('rescueai_users', JSON.stringify(users));
+                }
+                alert('Password reset successful!');
+            }
+        } else if (newPassword) {
+            alert('Password must be at least 6 characters.');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadProfile);
+</script>
+
+</body>
+</html>

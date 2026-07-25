@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>RescueAI - Predicting Risks, Protecting Communities</title>
+    <meta name="description" content="RescueAI - The world's most advanced flood intelligence and risk management ecosystem. Real-time satellite syncing, community field reports, and predictive dispatch.">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f2f3fd",
+                        "on-primary-container": "#fefcff",
+                        "tertiary-container": "#cb4832",
+                        "surface-dim": "#d8dae3",
+                        "tertiary-fixed": "#ffdad4",
+                        "surface-bright": "#f9f9ff",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#a9301d",
+                        "on-surface-variant": "#414753",
+                        "primary-fixed": "#d4e3ff",
+                        "on-primary-fixed-variant": "#004786",
+                        "on-tertiary-fixed": "#3f0300",
+                        "error": "#ba1a1a",
+                        "inverse-surface": "#2d3038",
+                        "outline-variant": "#c1c6d5",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed-variant": "#8b1909",
+                        "on-error": "#ffffff",
+                        "surface-tint": "#005faf",
+                        "secondary-fixed": "#e2e2e2",
+                        "on-primary": "#ffffff",
+                        "secondary": "#5d5f5f",
+                        "surface-container": "#ecedf7",
+                        "secondary-container": "#dfe0e0",
+                        "inverse-on-surface": "#eff0fa",
+                        "primary": "#005cab",
+                        "on-tertiary-container": "#fffbff",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "on-primary-fixed": "#001c3a",
+                        "inverse-primary": "#a6c8ff",
+                        "on-secondary-fixed-variant": "#454747",
+                        "surface-container-high": "#e6e8f1",
+                        "on-secondary": "#ffffff",
+                        "surface-variant": "#e0e2ec",
+                        "outline": "#717785",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "primary-fixed-dim": "#a6c8ff",
+                        "on-background": "#181c22",
+                        "background": "#f9f9ff",
+                        "surface-container-highest": "#e0e2ec",
+                        "tertiary-fixed-dim": "#ffb4a6",
+                        "surface": "#f9f9ff",
+                        "on-secondary-container": "#616363",
+                        "primary-container": "#0075d6",
+                        "on-surface": "#181c22"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "gutter": "16px",
+                        "container-max": "1280px",
+                        "margin": "24px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Outfit"],
+                        "headline-md": ["Outfit"],
+                        "body-md": ["Outfit"],
+                        "headline-lg": ["Outfit"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Outfit', sans-serif; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+        .hero-gradient {
+            background: linear-gradient(to right, rgba(249, 249, 255, 1) 0%, rgba(249, 249, 255, 0.8) 40%, rgba(249, 249, 255, 0) 100%);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background overflow-hidden">
+
+<!-- Hero Background Layer -->
+<div class="fixed inset-0 z-0 h-screen w-screen overflow-hidden">
+    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-[20s] hover:scale-110" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuArUT47vslVPamevEOXE8i-g2oVcKCKBWpDeO9lyZx4_5Fffj2Uvw0f3GHnk3KAXPrrCBV6C1_WC7U2YILyXhBLpOXRj0B2amoonp3M8RVuHVC37bPpwaXGiHRcNmBej8utM32EBxkJJSqIdFE0E3yzQlzcqBLwdrFY3Vyhoppiw5zHkLB4KbulTpy1XS0l0SmNh-Xv8tEGkryVAG8fG8n34ZigKh2JA3evBHfCv1MIWJD1dUDQTD2D19idwQNrlxBr9qevZOW_qPw')">
+    </div>
+    <!-- Gradient Overlay for Content Legibility -->
+    <div class="absolute inset-0 hero-gradient"></div>
+</div>
+
+<!-- Layout Container -->
+<div class="relative z-10 flex flex-col h-screen pt-12">
+
+    <!-- Top Navigation -->
+    <header class="flex justify-between items-center w-full px-8 md:px-16 lg:px-20 h-16 sticky top-0 z-50">
+        <div class="flex items-center gap-2">
+            <span class="text-headline-md font-headline-md text-primary font-bold tracking-tight">RescueAI</span>
+            <span class="text-label-md text-outline px-2 py-0.5 bg-surface-container-low rounded uppercase tracking-widest font-bold ml-2">Beta</span>
+        </div>
+        <div class="flex items-center gap-gutter">
+            <button id="language-btn" class="flex items-center gap-2 text-primary hover:bg-surface-container transition-colors px-4 py-2 rounded-lg font-label-md">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">language</span>
+                English
+            </button>
+            <div class="h-6 w-[1px] bg-outline-variant"></div>
+            <div class="flex items-center gap-2 px-4 py-2 bg-tertiary-container text-on-tertiary-container rounded-full font-bold shadow-sm">
+                <span class="material-symbols-outlined">emergency</span>
+                <span class="text-label-md">SOS 1122</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Canvas -->
+    <main class="flex-grow flex items-center px-8 md:px-16 lg:px-20">
+        <div class="max-w-xl w-full">
+            <!-- Branding Context -->
+            <div class="mb-gutter animate-fade-in">
+                <span class="text-primary font-bold tracking-widest uppercase text-xs">InterLink Digital Intelligence</span>
+                <h1 class="font-headline-lg text-headline-lg text-on-background mt-2 leading-tight">
+                    Predicting Risks.<br>Protecting Communities.
+                </h1>
+                <p class="font-body-md text-on-surface-variant mt-4 max-w-md">
+                    The world's most advanced flood intelligence and risk management ecosystem. Real-time satellite syncing, community field reports, and predictive dispatch.
+                </p>
+            </div>
+
+            <!-- Action Card -->
+            <div class="glass-panel p-8 rounded-xl border border-outline-variant shadow-xl">
+                <div class="grid grid-cols-1 gap-4">
+                    <!-- Primary CTA -->
+                    <a href="signup.html" class="w-full bg-primary py-4 rounded-lg text-on-primary font-bold flex justify-between items-center px-6 hover:opacity-90 active:scale-[0.98] transition-all group no-underline">
+                        <span class="text-body-md">Sign Up for Emergency Alerts</span>
+                        <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    </a>
+
+                    <div class="relative py-2 flex items-center">
+                        <div class="flex-grow border-t border-outline-variant"></div>
+                        <span class="flex-shrink mx-4 text-outline font-label-md text-xs uppercase tracking-widest">Internal Portal</span>
+                        <div class="flex-grow border-t border-outline-variant"></div>
+                    </div>
+
+                    <!-- Secondary CTA -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <a href="login.html" class="flex items-center justify-center gap-2 bg-surface-container-lowest border border-outline-variant py-3 rounded-lg text-primary font-bold hover:bg-surface-container transition-all active:scale-[0.98] no-underline">
+                            <span class="material-symbols-outlined">verified_user</span>
+                            <span class="text-label-md">Agent Login</span>
+                        </a>
+                        <button id="public-map-btn" class="flex items-center justify-center gap-2 bg-surface-container-lowest border border-outline-variant py-3 rounded-lg text-on-surface-variant font-bold hover:bg-surface-container transition-all active:scale-[0.98]">
+                            <span class="material-symbols-outlined">explore</span>
+                            <span class="text-label-md">Public Map</span>
+                        </button>
+                    </div>
+
+                    <div class="mt-4 text-center">
+                        <p class="text-label-md text-on-surface-variant">
+                            Already have an account? 
+                            <a href="login.html" class="text-primary font-bold hover:underline transition-all">Log in here</a>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex items-start gap-3 p-3 bg-surface-container-low rounded-lg border border-outline-variant/30">
+                    <span class="material-symbols-outlined text-primary text-lg">info</span>
+                    <p class="text-[12px] text-on-surface-variant leading-relaxed">
+                        InterLink Digital's "Corporate Modern" infrastructure ensures 99.9% uptime for institutional emergency dispatch operations.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Shell -->
+    <footer class="h-20 w-full px-8 md:px-16 lg:px-20 flex justify-between items-center z-20">
+        <div class="flex gap-gutter">
+            <a class="text-label-md text-outline hover:text-primary transition-colors" href="#">Privacy Policy</a>
+            <a class="text-label-md text-outline hover:text-primary transition-colors" href="#">Risk Methodology</a>
+            <a class="text-label-md text-outline hover:text-primary transition-colors" href="#">Terms of Service</a>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="flex -space-x-2">
+                <div class="w-8 h-8 rounded-full border-2 border-white bg-blue-100 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-sm text-primary">hub</span>
+                </div>
+                <div class="w-8 h-8 rounded-full border-2 border-white bg-green-100 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-sm text-green-700">satellite_alt</span>
+                </div>
+                <div class="w-8 h-8 rounded-full border-2 border-white bg-orange-100 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-sm text-orange-700">warning</span>
+                </div>
+            </div>
+            <p class="text-label-md text-on-surface-variant font-medium">
+                Integrated with <span class="text-primary font-bold">Sentinel-6 Data Streams</span>
+            </p>
+        </div>
+    </footer>
+</div>
+
+<!-- Interactive Micro-interactions -->
+<script>
+    document.querySelectorAll('button, a').forEach(el => {
+        el.addEventListener('mousedown', () => {
+            el.style.transform = 'scale(0.98)';
+        });
+        el.addEventListener('mouseup', () => {
+            el.style.transform = 'scale(1)';
+        });
+        el.addEventListener('mouseleave', () => {
+            el.style.transform = 'scale(1)';
+        });
+    });
+
+    // Atmospheric parallax effect
+    document.addEventListener('mousemove', (e) => {
+        const moveX = (e.clientX - window.innerWidth / 2) / 100;
+        const moveY = (e.clientY - window.innerHeight / 2) / 100;
+        const bg = document.querySelector('[style*="background-image"]');
+        if (bg) {
+            bg.style.transform = `scale(1.1) translate(${moveX}px, ${moveY}px)`;
+        }
+    });
+</script>
+
+</body>
+</html>

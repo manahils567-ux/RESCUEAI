@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RescueAI | SMS to WhatsApp</title>
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                "colors": {
+                    "primary": "#005cab",
+                    "on-surface": "#181c22",
+                    "surface-container-high": "#e6e8f1",
+                    "error": "#ba1a1a",
+                    "background": "#f9f9ff",
+                    "outline": "#717785",
+                    "surface-dim": "#d8dae3",
+                    "primary-fixed": "#d4e3ff",
+                    "surface": "#f9f9ff",
+                    "surface-container-low": "#f2f3fd",
+                    "primary-container": "#0075d6",
+                    "on-surface-variant": "#414753",
+                    "surface-container-lowest": "#ffffff"
+                },
+                "fontFamily": {
+                    "label-md": ["Outfit"],
+                    "headline-lg": ["Outfit"],
+                    "headline-md": ["Outfit"],
+                    "body-md": ["Outfit"]
+                }
+            }
+        }
+    }
+</script>
+<style>
+    body { font-family: 'Outfit', sans-serif; }
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #c1c6d5; border-radius: 10px; }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const userStr = localStorage.getItem('rescueai_current_user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            const initials = user.fullName.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+            document.querySelectorAll('.user-avatar-initials').forEach(el => el.textContent = initials);
+            document.querySelectorAll('.user-display-name').forEach(el => el.textContent = user.username);
+        }
+    });
+</script>
+</head>
+<body class="bg-background text-on-surface flex flex-col h-screen overflow-hidden">
+<!-- TopNavBar Implementation -->
+<header class="fixed top-0 left-0 w-full h-16 px-6 py-2 flex justify-between items-center bg-surface border-b border-outline-variant z-50">
+    <div class="flex items-center gap-8">
+        <span class="text-headline-md font-headline-md font-bold text-primary">RescueAI</span>
+    </div>
+    <div class="flex items-center gap-4">
+        <div class="relative hidden lg:block w-64">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+            <input id="search-district-input" class="w-full bg-surface-container border border-outline-variant rounded-full pl-10 pr-4 py-1.5 text-label-md focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Search..." type="text">
+        </div>
+        <a href="profile.html" class="flex items-center gap-2 hover:bg-surface-container-high p-1 pr-3 rounded-full transition-colors group">
+            <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm user-avatar-initials">JD</div>
+            <span class="text-label-md font-semibold text-on-surface group-hover:text-primary hidden sm:block user-display-name">Operator 42</span>
+        </a>
+    </div>
+</header>
+<!-- Main Content Area -->
+<div class="flex flex-1 pt-16 h-full overflow-hidden">
+    <!-- SideNavBar -->
+    <aside class="bg-surface-container-low border-r border-outline-variant flex flex-col h-full w-64 fixed left-0 top-0 pt-16 pb-4 px-3 z-40">
+        <div class="mb-8 px-4 py-6">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center">
+                    <span class="material-symbols-outlined text-on-primary-container">support</span>
+                </div>
+                <div>
+                    <h3 class="font-headline-md text-[18px] text-primary">Operator Console</h3>
+                    <p class="text-on-surface-variant text-[12px]">Pakistan Flood Intelligence</p>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 space-y-1">
+            <a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="dashboard.html">
+                <span class="material-symbols-outlined">map</span>
+                <span class="font-label-md text-label-md">Map</span>
+            </a>
+            <a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="risk-analytics.html">
+                <span class="material-symbols-outlined">analytics</span>
+                <span class="font-label-md text-label-md">Risk Forecasts</span>
+            </a>
+            <a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="road-status.html">
+                <span class="material-symbols-outlined">traffic</span>
+                <span class="font-label-md text-label-md">Road Status</span>
+            </a>
+            <a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="field-report.html">
+                <span class="material-symbols-outlined">description</span>
+                <span class="font-label-md text-label-md">Field Reports</span>
+            </a>
+            <a class="bg-primary-container text-on-primary-container font-semibold flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="sms-to-whatsapp.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">sync_alt</span>
+                <span class="font-label-md text-label-md">SMS to WhatsApp</span>
+            </a>
+        </nav>
+        <div class="mt-auto space-y-4">
+            <div class="pt-4 border-t border-outline-variant space-y-1">
+                <a class="text-error hover:bg-error-container/20 flex items-center gap-3 px-4 py-3 rounded-lg transition-all scale-95 active:scale-90 duration-150" href="login.html">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span class="font-label-md text-label-md">Logout</span>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Canvas -->
+    <main class="ml-64 flex-1 flex flex-col items-center overflow-y-auto bg-surface-dim p-8">
+        <div class="w-full max-w-4xl space-y-6 mt-4">
+            
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-16 h-16 bg-[#25D366] rounded-2xl flex items-center justify-center text-white shadow-lg">
+                    <span class="material-symbols-outlined text-4xl">chat</span>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-on-surface">WhatsApp Alerts Sync</h1>
+                    <p class="text-on-surface-variant">Manage citizen registration for automated AI flood alerts.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Register / Lookup Form -->
+                <div class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant p-6">
+                    <h3 class="text-lg font-bold text-on-surface flex items-center gap-2 mb-4"><span class="material-symbols-outlined text-primary">person_add</span> Register Citizen</h3>
+                    <p class="text-sm text-on-surface-variant mb-6">Manually enroll a citizen's phone number into the WhatsApp alert system (replaces legacy SMS system).</p>
+                    
+                    <form id="register-form" onsubmit="handleRegister(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-wider text-outline mb-1">Phone Number (+92)</label>
+                            <input id="reg-phone" type="text" placeholder="+923001234567" class="w-full bg-surface-container border border-outline-variant rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary" required>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[11px] font-bold uppercase tracking-wider text-outline mb-1">District</label>
+                                <input id="reg-district" type="text" placeholder="Rajanpur" class="w-full bg-surface-container border border-outline-variant rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary" required>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold uppercase tracking-wider text-outline mb-1">Union Council</label>
+                                <input id="reg-uc" type="text" placeholder="Rajanpur City" class="w-full bg-surface-container border border-outline-variant rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-[#25D366] text-white font-bold py-3 rounded-xl hover:opacity-90 shadow-md transition-all flex items-center justify-center gap-2 mt-2">
+                            <span class="material-symbols-outlined">send</span> Sync to WhatsApp DB
+                        </button>
+                    </form>
+                    <div id="reg-result" class="mt-4 text-sm font-medium hidden p-3 rounded-lg"></div>
+                </div>
+
+                <!-- Status Lookup -->
+                <div class="space-y-6">
+                    <div class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant p-6">
+                        <h3 class="text-lg font-bold text-on-surface flex items-center gap-2 mb-4"><span class="material-symbols-outlined text-primary">search</span> Verify Status</h3>
+                        <p class="text-sm text-on-surface-variant mb-4">Check if a citizen is receiving active WhatsApp updates.</p>
+                        
+                        <div class="flex gap-2">
+                            <input id="search-phone" type="text" placeholder="+92..." class="flex-1 bg-surface-container border border-outline-variant rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                            <button onclick="checkStatus()" class="bg-primary text-white font-bold px-6 rounded-lg hover:opacity-90 shadow">Check</button>
+                        </div>
+                        <div id="status-result" class="mt-4 hidden p-4 bg-surface-container-high rounded-xl"></div>
+                    </div>
+
+                    <!-- Migration Info -->
+                    <div class="bg-surface-container-highest rounded-2xl border border-outline-variant p-6 relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 opacity-10">
+                            <span class="material-symbols-outlined" style="font-size: 120px">sync</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-on-surface mb-2 relative z-10">System Migrated</h3>
+                        <p class="text-sm text-on-surface-variant relative z-10">Twilio SMS broadcasting has been deprecated for Pakistan. All real-time flood warnings, route maps, and safe camp directions are now exclusively routed through the Meta WhatsApp Business API for rich media support.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    async function handleRegister(e) {
+        e.preventDefault();
+        const phone = document.getElementById('reg-phone').value;
+        const district = document.getElementById('reg-district').value;
+        const uc = document.getElementById('reg-uc').value;
+        const resultEl = document.getElementById('reg-result');
+
+        try {
+            const res = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone, district, union_council: uc, language: 'ur' })
+            });
+            const data = await res.json();
+            
+            resultEl.classList.remove('hidden', 'bg-error-container', 'text-error');
+            resultEl.classList.add('bg-green-100', 'text-green-800');
+            resultEl.textContent = data.message || "Successfully registered to WhatsApp API!";
+            document.getElementById('register-form').reset();
+        } catch (err) {
+            resultEl.classList.remove('hidden', 'bg-green-100', 'text-green-800');
+            resultEl.classList.add('bg-error-container', 'text-error');
+            resultEl.textContent = "Error connecting to backend.";
+        }
+    }
+
+    async function checkStatus() {
+        const phone = document.getElementById('search-phone').value;
+        const resultEl = document.getElementById('status-result');
+        if (!phone) return;
+
+        try {
+            const res = await fetch(`/api/register/status/${encodeURIComponent(phone)}`);
+            const data = await res.json();
+            
+            resultEl.classList.remove('hidden');
+            if (data.registered) {
+                resultEl.innerHTML = `
+                    <div class="flex items-center gap-2 text-green-700 font-bold mb-2">
+                        <span class="material-symbols-outlined">check_circle</span> Active on WhatsApp
+                    </div>
+                    <p class="text-sm"><strong>District:</strong> ${data.district}</p>
+                    <p class="text-sm"><strong>UC:</strong> ${data.union_council}</p>
+                    <p class="text-sm"><strong>Language:</strong> ${data.language}</p>
+                `;
+            } else {
+                resultEl.innerHTML = `
+                    <div class="flex items-center gap-2 text-error font-bold">
+                        <span class="material-symbols-outlined">cancel</span> Not Registered
+                    </div>
+                    <p class="text-sm mt-1 text-on-surface-variant">This number is not receiving flood alerts.</p>
+                `;
+            }
+        } catch (err) {
+            resultEl.classList.remove('hidden');
+            resultEl.textContent = "Error connecting to backend.";
+        }
+    }
+</script>
+</body>
+</html>

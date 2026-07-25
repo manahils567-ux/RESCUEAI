@@ -5,6 +5,7 @@ console.log('MONGO_URI loaded:', process.env.MONGO_URI ? '✅ Yes' : '❌ No');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const path = require('path');
 const connectDB = require('./config/db');
 
 connectDB();
@@ -12,7 +13,10 @@ require('./jobs/cron');
 
 const app = express();
 
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false,   // frontend uses inline scripts + CDN resources
+  crossOriginEmbedderPolicy: false // allow Google Maps iframe embed
+}));
 app.use(cors({
   origin: function(origin, callback) {
     const allowed = [
@@ -34,6 +38,9 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, '..', 'frontend')));
+
 // ROUTES
 app.use('/webhook', require('./routes/webhook'));
 app.use('/api/reports', require('./routes/reports'));
@@ -43,9 +50,18 @@ app.use('/api/roads', require('./routes/roads'));
 app.use('/api/floods', require('./routes/floods'));
 app.use('/api/replay', require('./routes/replay'));
 app.use('/api/relief-camps', require('./routes/reliefCamps'));
+app.use('/api/auth', require('./routes/auth'));
 app.use('/api/river-gauges', require('./routes/riverGauges'));
+app.use('/api/chat', require('./routes/chat'));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', ts: new Date() }));
+
+// Fallback: serve index page for any non-API route
+app.get('{*path}', (req, res) => {
+  if (!req.path.startsWith('/api/') && !req.path.startsWith('/webhook')) {
+    res.sendFile(path.join(__dirname, '..', 'frontend', 'field-report.html'));
+  }
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
